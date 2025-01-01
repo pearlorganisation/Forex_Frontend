@@ -40,7 +40,7 @@ function Order() {
                     }}
                 />
             </div>
-            <TabsProvider defaultValue={'transferNoney'}>
+            <TabsProvider defaultValue={'exchangeCurrency'}>
                 <div className="flex justify-center mt-2 ">
                     <div className="flex items-center w-fit  dark:bg-[#1d2025] bg-gray-200 p-1 dark:text-white text-black rounded-3xl border">
                         <TabsBtn value="exchangeCurrency">
