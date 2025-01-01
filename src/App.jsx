@@ -4,6 +4,7 @@ import Home from './pages/Home/Home'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Order from './pages/Order/Order'
+import ForexRatedFAQ from './pages/ForexRatedFAQ/ForexRatedFAQ'
 
 function App() {
   const router = createBrowserRouter([
@@ -18,6 +19,10 @@ function App() {
         {
           path: '/order',
           element: <Order />
+        },
+        {
+          path: '/forexRatesFaq',
+          element: <ForexRatedFAQ />
         }
       ]
     }

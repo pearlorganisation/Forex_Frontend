@@ -21,11 +21,11 @@ export default function HeroSection() {
 
                             {/* Explore More Button */}
                             <button className="relative bg-[#011536] px-4 py-2 text-white before:content-[`hello`] before:absolute before:right-0 before:top-0 before:-z-10 before:h-full before:w-10 before:translate-x-3 before:-skew-x-[25deg] before:bg-blue-900">
-                                <div className="z-10">Explore more</div>
+                                <div className="">Explore more</div>
                             </button>
                             {/* Start Trading Button */}
                             <button className="relative bg-blue-900 px-4 py-2 text-white before:content-[`hello`] before:absolute before:left-0 before:top-0 before:h-full before:w-10 before:-translate-x-3 before:-skew-x-[25deg] before:bg-blue-900 before:-z-10">
-                                <div className="z-10">Start Trading</div>
+                                <div className="">Start Trading</div>
                             </button>
                         </div>
                     </div>

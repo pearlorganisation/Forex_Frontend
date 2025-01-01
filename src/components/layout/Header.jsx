@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SlideTabs } from '../SlideTabs'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export default function Header() {
-    const [isOpen, setIsOpen] = useState(true)
+    const [isOpen, setIsOpen] = useState(false)
 
     return (
         <header className="w-full bg-white shadow-sm">
@@ -53,7 +54,7 @@ export default function Header() {
                         <div className='space-x-6'>
                             {/* Forex Rates Button */}
                             <Link
-                                href="/faqs"
+                                to="/forexRatesFaq"
                                 className="py-4 text-[#1A237E] font-medium hover:text-[#151B60] transition-colors"
                             >
                                 FAQ's
@@ -97,66 +98,80 @@ export default function Header() {
                     </div>
 
                     {/* Mobile Menu */}
-                    {isOpen && (
-                        <>
-                            {/* Backdrop */}
-                            <div
-                                className="fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-in-out"
-                                style={{ opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? 'auto' : 'none' }}
-                                onClick={() => setIsOpen(false)}
-                            />
-                            {/* Sliding Menu */}
-                            <div
-                                className={`
-                  fixed top-0 right-0 bottom-0 w-[300px] bg-white shadow-2xl 
-                  transform transition-all duration-300 ease-in-out
-                  md:hidden
-                  ${isOpen ? 'translate-x-0 scale-100 opacity-100' : 'translate-x-full scale-95 opacity-0'}
-                `}
-                            >
-                                {/* Close button */}
-                                <button
-                                    className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
+                    <AnimatePresence>
+                        {isOpen && (
+                            <>
+                                {/* Backdrop */}
+                                <div
+                                    className="fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-in-out"
+                                    style={{ opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? 'auto' : 'none' }}
                                     onClick={() => setIsOpen(false)}
+                                />
+                                {/* Sliding Menu */}
+                                <motion.div
+                                    initial={{
+                                        translateX: '100%',
+                                        opacity: 0
+                                    }}
+                                    animate={{
+                                        translateX: 0,
+                                        opacity: 1
+                                    }}
+                                    exit={{
+                                        translateX: '100%',
+                                        opacity: 0
+                                    }}
+                                    className={`
+                  fixed top-0 right-0 bottom-0 w-[300px] bg-white shadow-2xl 
+                  
+                  md:hidden
+                  z-50}
+                `}
                                 >
-                                    <svg
-                                        className="w-6 h-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
+                                    {/* Close button */}
+                                    <button
+                                        className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
+                                        onClick={() => setIsOpen(false)}
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M6 18L18 6M6 6l12 12"
-                                        />
-                                    </svg>
-                                </button>
+                                        <svg
+                                            className="w-6 h-6"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M6 18L18 6M6 6l12 12"
+                                            />
+                                        </svg>
+                                    </button>
 
-                                {/* Menu Items */}
-                                <div className="flex flex-col space-y-4 p-6 pt-16">
-                                    {['Home', 'Services', 'Top Currencies', 'Currency Convertor', "FAQ's"].map((item, index) => (
-                                        <Link
-                                            key={item}
-                                            href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/\s+/g, '-')}`}
-                                            className={`
+                                    {/* Menu Items */}
+                                    <div className="flex flex-col space-y-4 p-6 pt-16">
+                                        {['Home', 'Services', 'Top Currencies', 'Currency Convertor', "FAQ's"].map((item, index) => (
+                                            <Link
+                                                key={item}
+                                                href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/\s+/g, '-')}`}
+                                                className={`
                         text-gray-500 hover:text-gray-800 transition-all duration-300 ease-in-out
                         ${item === 'Home' ? 'text-gray-800 font-medium' : ''}
                         ${item === "FAQ's" ? 'text-[#1A237E] font-medium hover:text-[#151B60]' : ''}
                         transform transition-transform duration-300 ease-in-out
                         ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-4 opacity-0'}
                       `}
-                                            style={{ transitionDelay: `${index * 50}ms` }}
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            {item}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        </>
-                    )}
+                                                style={{ transitionDelay: `${index * 50}ms` }}
+                                                onClick={() => setIsOpen(false)}
+                                            >
+                                                {item}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
                 </div>
             </nav>
         </header>
