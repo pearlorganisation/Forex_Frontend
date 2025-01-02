@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
-
+import bgimg from "/assets/bg-img.png"
 export default function Footer() {
     return (
-        <footer className="w-full bg-white pt-16 pb-8 relative">
+        <footer className="w-full bg-white pt-16 pb-8 relative" style={{
+            backgroundImage: `url(${bgimg})`, // Set background image
+            backgroundSize: "cover",         // Ensure the image covers the entire container
+            backgroundRepeat: "no-repeat",   // Prevent repeating the image
+            backgroundPosition: "center",    // Center the image
+          }}>
 
             <div className="container mx-auto px-4 z-50">
 

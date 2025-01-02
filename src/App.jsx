@@ -3,6 +3,8 @@ import MainLayout from './components/layout/MainLayout'
 import Home from './pages/Home/Home'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import OrderDetails from './pages/orderPage'
+import TravelInsurance from './components/TravelInsurance'
 
 function App() {
   const router = createBrowserRouter([
@@ -15,7 +17,17 @@ function App() {
           element: <Home />
         }
       ]
+    },{
+      path:"/order",
+      element:<OrderDetails/>
+    },
+    {
+      path:"/TravelInsurance",
+      element:<TravelInsurance/>
     }
+
+
+
   ])
   // Create a client
   const queryClient = new QueryClient()
