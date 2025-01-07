@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ChevronDown, ArrowRight } from 'lucide-react'
+import Select from 'react-select';
 
-const ReloadForex = () => {
+const ReloadForex = ({ data }) => {
     const [totalAmount, setTotalAmount] = useState(0);
     const {
         register,
@@ -27,11 +28,26 @@ const ReloadForex = () => {
     const currencies = ["Indian Rupee", "US Dollar", "Euro", "British Pound", "Japanese Yen"]
     const forexCards = ["Travel Card", "Forex Card", "Multi-Currency Card"]
 
+    const cityOptions = data?.cityLists?.map((city) => ({
+        value: city.Cityname,
+        label: city.Cityname,
+    }));
+
     return (
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             {/* City Selection */}
             <div className="space-y-1.5">
-                <label className="text-sm font-medium">What kind of card do you have?*</label>
+                <label className="text-sm font-medium">{data?.ForexCardTypelbl || `What kind of card do you have?*`}</label>
+                <Select
+                    options={cityOptions}
+                    placeholder={data?.citywatermark}
+                    {...register("cardDoYouHave", { required: "City is required" })}
+                    classNamePrefix="react-select"
+                />
+                {errors.cardDoYouHave && <p className="text-red-500 text-sm">{errors.cardDoYouHave.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+                <label className="text-sm font-medium">{data?.ForexCardTypelbl || 'What kind of card do you have?*'}</label>
                 <div className="relative">
                     <select
                         {...register("cardDoYouHave", { required: "Card is required" })}
@@ -49,7 +65,7 @@ const ReloadForex = () => {
                 {errors.cardDoYouHave && <p className="text-red-500 text-sm">{errors.cardDoYouHave.message}</p>}
             </div>
             <div className="space-y-1.5">
-                {/* <label className="text-sm font-medium">Select City*</label> */}
+                <label className="text-sm font-medium">{data?.Currencylistlbl || 'What kind of card do you have?*'}</label>
                 <div className="relative">
                     <select
                         {...register("city", { required: "City is required" })}

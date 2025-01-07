@@ -2,9 +2,24 @@
 import { useState } from "react"
 import ReloadForex from "./ReloadForex"
 import UnloadForex from "./UnloadForex"
+import instance from "../../api/api"
+import { useQuery } from "@tanstack/react-query"
 
 
 export default function ReloadUnloadForexCards() {
+    const fetchReloadUnload = async () => {
+        const response = await instance.get(`/api/Forex/GetForexHomePage`)
+        return response?.data
+    }
+    const useReloadUnload = () => {
+        return useQuery({
+            queryKey: ["reloadUnload"],
+            queryFn: fetchReloadUnload,
+            select: data => data?.reload_Unload
+        })
+    }
+
+    const { data, isLoading, error } = useReloadUnload()
     const [activeTab, setActiveTab] = useState("reload")
 
     return (
@@ -33,10 +48,10 @@ export default function ReloadUnloadForexCards() {
                 </div>
 
                 {
-                    activeTab === 'reload' && <ReloadForex />
+                    activeTab === 'reload' && <ReloadForex isLoading={isLoading} data={data?.reloadForexdata} />
                 }
                 {
-                    activeTab === 'unload' && <UnloadForex />
+                    activeTab === 'unload' && <UnloadForex isLoading={isLoading} data={data?.unloadForexdata} />
                 }
             </div>
         </div>
