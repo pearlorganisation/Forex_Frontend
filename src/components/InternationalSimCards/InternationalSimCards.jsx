@@ -1,9 +1,25 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ChevronDown, ArrowRight } from 'lucide-react'
-import { div } from 'framer-motion/client';
+import instance from '../../api/api';
+import { useQuery } from '@tanstack/react-query';
+import Select from 'react-select';
 
 const InternationalSimCards = () => {
+
+    const fetchSimCards = async () => {
+        const response = await instance.get(`/api/Forex/GetForexHomePage`)
+        return response?.data
+    }
+    const useSimCards = () => {
+        return useQuery({
+            queryKey: ["fetchSimCards"],
+            queryFn: fetchSimCards,
+            select: data => data?.Simcard
+        })
+    }
+
+    const { data, isLoading, error } = useSimCards()
     const [totalAmount, setTotalAmount] = useState(0);
     const {
         register,
@@ -27,33 +43,39 @@ const InternationalSimCards = () => {
     const currencies = ["Indian Rupee", "US Dollar", "Euro", "British Pound", "Japanese Yen"]
     const forexCards = ["Travel Card", "Forex Card", "Multi-Currency Card"]
 
+    const countryOption = data?.countries?.map((cur) => ({
+        value: cur.Currencycode,
+        label: (
+            <div className="flex items-center space-x-2">
+                <img
+                    src={cur.CountryLogo}
+                    alt={cur.CountryLogo}
+                    className="w-5 h-5"
+                />
+                <span>{`${cur.Countryname} (${cur.CountryCode || '00'})`}</span>
+            </div>
+        ),
+    }));
+
     return (
         <div className='w-full max-w-xl mx-auto p-6'>
 
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 {/* City Selection */}
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">Select countries Travelling To*</label>
-                    <div className="relative">
-                        <select
-                            {...register("countriesTravelingTo", { required: "Country is required" })}
-                            className="w-full rounded-lg border border-gray-300 py-2.5 px-4 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">Choose an option</option>
-                            {cities.map((city) => (
-                                <option key={city} value={city}>
-                                    {city}
-                                </option>
-                            ))}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
-                    </div>
-                    {errors.countriesTravelingTo && <p className="text-red-500 text-sm">{errors.countriesTravelingTo.message}</p>}
+                    <label className="text-sm font-medium">{data?.countrydrpdwnlbl || 'Select Country To Travel*'}</label>
+                    <Select
+                        options={countryOption}
+                        placeholder={data?.countrywatermark}
+                        {...register("cardDoYouHave", { required: "City is required" })}
+                        classNamePrefix="react-select"
+                    />
+                    {errors.cardDoYouHave && <p className="text-red-500 text-sm">{errors.cardDoYouHave.message}</p>}
                 </div>
 
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">Start Date*</label>
+                    <label className="text-sm font-medium"> {data?.travelstlbl || 'Start Date*'}</label>
                     <input
                         type="date"
                         {...register("startDate", {
@@ -61,12 +83,12 @@ const InternationalSimCards = () => {
                             min: { value: 1, message: "Amount must be greater than zero" },
                         })}
                         className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Start Date"
+                        placeholder={data?.travelstwatermark}
                     />
                     {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
                 </div>
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">End Date*</label>
+                    <label className="text-sm font-medium">{data?.travelendlbl || 'End Date*'}</label>
                     <input
                         type="date"
                         {...register("endDate", {
@@ -74,7 +96,7 @@ const InternationalSimCards = () => {
                             min: { value: 1, message: "Amount must be greater than zero" },
                         })}
                         className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="End Date"
+                        placeholder={data?.travelendwatermark}
                     />
                     {errors.endDate && <p className="text-red-500 text-sm">{errors.endDate.message}</p>}
                 </div>

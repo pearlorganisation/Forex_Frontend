@@ -66,7 +66,7 @@ const TravelInsurance = () => {
                 </div>
 
 
-                <div className='grid md:grid-cols-2 space-y-1.5 gap-x-5'>
+                <div className='grid md:grid-cols-2 space-y-1.5 gap-x-5 '>
                     <label className="text-sm font-medium col-span-2">Trip Start Date*</label>
                     <div className="space-y-1.5">
                         <input

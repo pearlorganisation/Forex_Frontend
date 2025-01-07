@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ChevronDown, ArrowRight } from 'lucide-react'
+import Select from 'react-select';
 
-const UnloadForex = () => {
+const UnloadForex = ({ data }) => {
     const [totalAmount, setTotalAmount] = useState(0);
     const {
         register,
@@ -23,89 +24,78 @@ const UnloadForex = () => {
     };
 
 
-    const cities = ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata"]
-    const currencies = ["Indian Rupee", "US Dollar", "Euro", "British Pound", "Japanese Yen"]
-    const forexCards = ["Travel Card", "Forex Card", "Multi-Currency Card"]
+    const cardOptions = data?.cardlist?.map((card) => ({
+        value: card.Cardname,
+        label: card.Cardname,
+    }));
+    const currencyListOption = data?.currencylist?.map((cur) => ({
+        value: cur.Currencycode,
+        label: (
+            <div className="flex items-center space-x-2">
+                <img
+                    src={cur.CurrimgUrl}
+                    alt={cur.Currencyname}
+                    className="w-5 h-5"
+                />
+                <span>{`${cur.Currencyname} (${cur.Currencycode}) ${cur?.Price}`}</span>
+            </div>
+        ),
+    }));
+
 
     return (
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             {/* City Selection */}
             <div className="space-y-1.5">
-                <label className="text-sm font-medium">What kind of card do you have?*</label>
-                <div className="relative">
-                    <select
-                        {...register("cardDoYouHave", { required: "Card is required" })}
-                        className="w-full rounded-lg border border-gray-300 py-2.5 px-4 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="">Choose an option</option>
-                        {cities.map((city) => (
-                            <option key={city} value={city}>
-                                {city}
-                            </option>
-                        ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
-                </div>
+                <label className="text-sm font-medium">{data?.ForexCardTypelbl || `What kind of card do you have?*`}</label>
+                <Select
+                    options={cardOptions}
+                    placeholder={data?.cardtypewatermark}
+                    {...register("cardDoYouHave", { required: "City is required" })}
+                    classNamePrefix="react-select"
+                />
                 {errors.cardDoYouHave && <p className="text-red-500 text-sm">{errors.cardDoYouHave.message}</p>}
             </div>
             <div className="space-y-1.5">
-                {/* <label className="text-sm font-medium">Select City*</label> */}
-                <div className="relative">
-                    <select
-                        {...register("city", { required: "City is required" })}
-                        className="w-full rounded-lg border border-gray-300 py-2.5 px-4 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="">Choose an option</option>
-                        {cities.map((city) => (
-                            <option key={city} value={city}>
-                                {city}
-                            </option>
-                        ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
-                </div>
-                {errors.city && <p className="text-red-500 text-sm">{errors.city.message}</p>}
+                <label className="text-sm font-medium">{data?.Currencylistlbl || 'What kind of card do you have?*'}</label>
+                <Select
+                    options={currencyListOption}
+                    placeholder={data?.Currwatermark}
+                    {...register("cardDoYouHave", { required: "City is required" })}
+                    classNamePrefix="react-select"
+                />
+                {errors.cardDoYouHave && <p className="text-red-500 text-sm">{errors.cardDoYouHave.message}</p>}
             </div>
+
 
             {/* Currency Selection Row */}
             <div className="grid grid-cols-2 gap-4">
+                {/* Amount Fields */}
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">Forex Amount*</label>
-                    <div className="relative">
-                        <select
-                            {...register("forexAmount", { required: "Please select the currency you have" })}
-                            className="w-full rounded-lg border border-gray-300 py-2.5 px-4 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            {currencies.map((currency) => (
-                                <option key={currency} value={currency}>
-                                    {currency}
-                                </option>
-                            ))}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
-                    </div>
+                    <label className="text-sm font-medium"> {data?.forexcontrollbl || `Forex Amount*`}</label>
+                    <input
+                        type="number"
+                        {...register("forexAmount", {
+                            required: "Forex amount is required",
+                            min: { value: 1, message: "Amount must be greater than zero" },
+                        })}
+                        className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={`${data?.forexcontrolwatermark || `Enter amount`}`}
+                    />
                     {errors.forexAmount && <p className="text-red-500 text-sm">{errors.forexAmount.message}</p>}
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">INR Amount*</label>
-                    <div className="relative">
-                        <select
-                            {...register("inrAmount", {
-                                required: "Please select the currency you want",
-                                validate: (value) =>
-                                    value !== watch("currencyHave") || "Currency you want cannot be the same as currency you have",
-                            })}
-                            className="w-full rounded-lg border border-gray-300 py-2.5 px-4 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            {currencies.map((currency) => (
-                                <option key={currency} value={currency}>
-                                    {currency}
-                                </option>
-                            ))}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
-                    </div>
+                    <label className="text-sm font-medium"> {data?.inrcontrollbl || `Forex Amount*`}</label>
+                    <input
+                        type="number"
+                        {...register("inrAmount", {
+                            required: "Forex amount is required",
+                            min: { value: 1, message: "Amount must be greater than zero" },
+                        })}
+                        className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={`${data?.inrcontrolwatermark || `Enter amount`}`}
+                    />
                     {errors.inrAmount && <p className="text-red-500 text-sm">{errors.inrAmount.message}</p>}
                 </div>
             </div>
@@ -136,7 +126,6 @@ const UnloadForex = () => {
         </form>
     )
 }
-
 
 
 export default UnloadForex
