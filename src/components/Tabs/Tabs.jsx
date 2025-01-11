@@ -161,7 +161,7 @@ export const TabsContent = ({ children, className, value, yValue }) => {
                         //     ease: 'easeInOut',
                         //     delay: 0.5,
                         // }}
-                        className={cn(' p-2 px-4 rounded-md relative', className)}
+                        className={cn(' p-2 px-4 rounded-md relative ', className)}
                     >
                         {activeTab === value ? children : null}
                     </motion.div>
