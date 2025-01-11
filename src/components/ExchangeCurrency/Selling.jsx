@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import Select from 'react-select';
 import { ArrowRight } from 'lucide-react';
+import DynamicCity from '../DynamicCity/DynamicCity';
 
 const Selling = ({ data, isLoading }) => {
     const [totalAmount, setTotalAmount] = useState(0);
@@ -9,6 +10,8 @@ const Selling = ({ data, isLoading }) => {
         register,
         handleSubmit,
         watch,
+        setValue,
+        control,
         formState: { errors },
     } = useForm();
 
@@ -68,55 +71,93 @@ const Selling = ({ data, isLoading }) => {
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             {/* City Selection */}
             <div className="space-y-1.5">
-                <label className="text-sm font-medium">{data?.citylbl || `Select City*`}</label>
-                <Select
-                    options={cityOptions}
-                    placeholder={data?.citywatermark}
-                    {...register("city", { required: "City is required" })}
-                    classNamePrefix="react-select"
+                {/* <label className="text-sm font-medium">
+                    {data?.citylbl || `Select City*`}
+                </label> */}
+                <DynamicCity
+                    lbl={data?.citylbl}
+                    data={data}
+                    control={control}
+                    name="city"
+                    rules={{ required: "City is required" }} // Add validation rule here
+                    setValue={setValue}
                 />
-                {errors.city && <p className="text-red-500 text-sm">{errors.city.message}</p>}
+
+                {errors.city && <p className="text-red-500  text-sm">{errors.city.message}</p>}
             </div>
 
-            {/* Currency Selection Row */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-4">
+
+                {/* Currency You Have */}
                 <div className="space-y-1.5">
                     <label className="text-sm font-medium">{data?.Currhavlbl || 'Currency you have*'}</label>
-                    <Select
-                        options={currencyHave}
-                        placeholder={data?.Currhavewatermark}
-                        {...register("currencyHave", { required: "Please select the currency you have" })}
-                        classNamePrefix="react-select"
+                    <Controller
+                        name="currencyHave"
+                        control={control}
+                        rules={{
+                            required: "Please select the currency you have",
+                        }}
+                        render={({ field }) => (
+                            <Select
+                                {...field}
+                                options={currencyHave}
+                                placeholder={data?.Currhavewatermark || "Select the currency you have"}
+                                classNamePrefix="react-select"
+                            />
+                        )}
                     />
-                    {errors.currencyHave && <p className="text-red-500 text-sm">{errors.currencyHave.message}</p>}
+                    {errors.currencyHave && (
+                        <p className="text-red-500 text-sm">{errors.currencyHave.message}</p>
+                    )}
                 </div>
 
+                {/* Currency You Want */}
                 <div className="space-y-1.5">
                     <label className="text-sm font-medium">{data?.Currwantlbl || 'Currency you want*'}</label>
-                    <Select
-                        options={currencyWant}
-                        placeholder={data?.Currwantwatermark}
-                        {...register("currencyWant", {
+                    <Controller
+                        name="currencyWant"
+                        control={control}
+                        rules={{
                             required: "Please select the currency you want",
                             validate: (value) =>
                                 value !== watch("currencyHave") || "Currency you want cannot be the same as currency you have",
-                        })}
-                        classNamePrefix="react-select"
+                        }}
+                        render={({ field }) => (
+                            <Select
+                                {...field}
+                                options={currencyWant}
+                                placeholder={data?.Currwantwatermark || "Select the currency you want"}
+                                classNamePrefix="react-select"
+                            />
+                        )}
                     />
-                    {errors.currencyWant && <p className="text-red-500 text-sm">{errors.currencyWant.message}</p>}
+                    {errors.currencyWant && (
+                        <p className="text-red-500 text-sm">{errors.currencyWant.message}</p>
+                    )}
                 </div>
             </div>
 
-            {/* Forex Cards */}
+            {/* Forex Cards Select */}
             <div className="space-y-1.5">
-                <label className="text-sm font-medium">{data?.prodlbl || "label"}*</label>
-                <Select
-                    options={productList}
-                    placeholder={`${data?.prodwatermark || `Select a card`}`}
-                    {...register("forexCards", { required: "Please select a forex card" })}
-                    classNamePrefix="react-select"
+                <label className="text-sm font-medium">{data?.prodlbl || "Select Forex Card*"} </label>
+                <Controller
+                    name="forexCards"
+                    control={control}
+                    rules={{
+                        required: "Please select a forex card", // Validation rule for forex cards
+                    }}
+                    render={({ field }) => (
+                        <Select
+                            {...field}
+                            options={productList}
+                            placeholder={data?.prodwatermark || "Select a card"}
+                            classNamePrefix="react-select"
+                        />
+                    )}
                 />
-                {errors.forexCards && <p className="text-red-500 text-sm">{errors.forexCards.message}</p>}
+                {errors.forexCards && (
+                    <p className="text-red-500 text-sm">{errors.forexCards.message}</p>
+                )}
             </div>
 
             {/* Amount Fields */}

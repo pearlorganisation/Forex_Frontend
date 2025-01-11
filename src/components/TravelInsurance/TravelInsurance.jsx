@@ -1,15 +1,34 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ChevronDown, ArrowRight } from 'lucide-react'
-import { div } from 'framer-motion/client';
+import instance from '../../api/api';
+import { useQuery } from '@tanstack/react-query';
+import Select from 'react-select';
+import DynamicCountry from '../DynamicCountry/DynamicCountry';
 
 const TravelInsurance = () => {
+
+    const fetchTravelInsurance = async () => {
+        const response = await instance.get(`/api/Forex/GetForexHomePage`)
+        return response?.data
+    }
+    const useTravelInsurance = () => {
+        return useQuery({
+            queryKey: ["fetchTravelInsurance"],
+            queryFn: fetchTravelInsurance,
+            select: data => data?.travelInsurance
+        })
+    }
+
+    const { data, isLoading, error } = useTravelInsurance()
     const [totalAmount, setTotalAmount] = useState(0);
     const {
         register,
         handleSubmit,
         watch,
         formState: { errors },
+        setValue,
+        control
     } = useForm({
         defaultValues: {
             cardDoYouHave: "",
@@ -23,36 +42,41 @@ const TravelInsurance = () => {
     };
 
 
-    const cities = ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata"]
-    const currencies = ["Indian Rupee", "US Dollar", "Euro", "British Pound", "Japanese Yen"]
-    const forexCards = ["Travel Card", "Forex Card", "Multi-Currency Card"]
+
+
+
+    const countryOption = data?.countries?.map((cur) => ({
+        value: cur.Currencycode,
+        label: (
+            <div className="flex items-center space-x-2">
+                <img
+                    src={cur.CountryLogo}
+                    alt={cur.CountryLogo}
+                    className="w-5 h-5"
+                />
+                <span>{`${cur.Countryname} (${cur.CountryCode || '00'})`}</span>
+            </div>
+        ),
+    }));
 
     return (
         <div className='w-full max-w-xl mx-auto p-6'>
 
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                {/* City Selection */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-medium">Destination*</label>
-                    <div className="relative">
-                        <select
-                            {...register("destination", { required: "Destination is required" })}
-                            className="w-full rounded-lg border border-gray-300 py-2.5 px-4 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="">Choose an option</option>
-                            {cities.map((city) => (
-                                <option key={city} value={city}>
-                                    {city}
-                                </option>
-                            ))}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
-                    </div>
-                    {errors.destination && <p className="text-red-500 text-sm">{errors.destination.message}</p>}
-                </div>
+
+                <DynamicCountry
+                    lbl={data?.countrylbl}
+                    data={data?.countries}
+                    control={control}
+                    name='destination'
+                    rules={{ required: "Country is required" }} // Add validation rule here
+                    setValue={setValue}
+                />
+                {errors.destination && <p className="text-red-500 text-sm">{errors.destination.message}</p>}
+
 
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">Age Of Travellers*</label>
+                    <label className="text-sm font-medium">  {data?.agelbl || "This is Placeholder Label"}</label>
                     <input
                         type="number"
                         {...register("ageOfTravellers", {
@@ -60,37 +84,44 @@ const TravelInsurance = () => {
                             min: { value: 1, message: "Age must be greater than zero" },
                         })}
                         className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Age Of Travellers"
+                        placeholder={data?.agewatermark}
                     />
                     {errors.ageOfTravellers && <p className="text-red-500 text-sm">{errors.ageOfTravellers.message}</p>}
                 </div>
 
 
-                <div className='grid md:grid-cols-2 space-y-1.5 gap-x-5 '>
-                    <label className="text-sm font-medium col-span-2">Trip Start Date*</label>
-                    <div className="space-y-1.5">
-                        <input
-                            type="date"
-                            {...register("departureDate", {
-                                required: "Departure Date is required",
-                                min: { value: 1, message: "Amount must be greater than zero" },
-                            })}
-                            className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Departure Date"
-                        />
-                        {errors.departureDate && <p className="text-red-500 text-sm">{errors.departureDate.message}</p>}
+                <div className='grid md:grid-cols-2 gap-y-4 md:gap-x-4'>
+                    <div className='grid space-y-1.5 w-full '>
+                        <label className="text-sm font-medium "> {data?.Tripstdatelbl || 'Trip Start Date*'}</label>
+                        <div className="space-y-1.5">
+                            <input
+                                type="date"
+                                {...register("startDate", {
+                                    required: "Departure Date is required",
+                                    min: { value: 1, message: "Amount must be greater than zero" },
+                                })}
+                                className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder={data?.tripstdatewatermark}
+                            />
+                            {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
+                        </div>
+
                     </div>
-                    <div className="space-y-1.5">
-                        <input
-                            type="date"
-                            {...register("returnDate", {
-                                required: "Return Date is required",
-                                min: { value: 1, message: "Amount must be greater than zero" },
-                            })}
-                            className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Return Date"
-                        />
-                        {errors.returnDate && <p className="text-red-500 text-sm">{errors.returnDate.message}</p>}
+                    <div className='grid space-y-1.5 w-full '>
+                        <label className="text-sm font-medium"> {data?.Tripenddatelbl || 'Trip End Date*'}</label>
+
+                        <div className="space-y-1.5">
+                            <input
+                                type="date"
+                                {...register("returnDate", {
+                                    required: "Return Date is required",
+                                    min: { value: 1, message: "Amount must be greater than zero" },
+                                })}
+                                className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder={data?.tripenddatewatermark}
+                            />
+                            {errors.returnDate && <p className="text-red-500 text-sm">{errors.returnDate.message}</p>}
+                        </div>
                     </div>
                 </div>
 

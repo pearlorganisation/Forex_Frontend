@@ -8,6 +8,7 @@ import React, {
     isValidElement,
 } from 'react';
 import { cn } from '../../lib/utils';
+import { useSearchParams } from 'react-router-dom';
 const TabContext = createContext(undefined);
 export const useTabs = () => {
     const context = useContext(TabContext);
@@ -54,6 +55,7 @@ export const TabsProvider = ({
     );
 };
 export const TabsBtn = ({ children, className, value }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const {
         activeTab,
         setPrevIndex,
@@ -66,6 +68,7 @@ export const TabsBtn = ({ children, className, value }) => {
     const handleClick = () => {
         setPrevIndex(tabsOrder.indexOf(activeTab));
         setActiveTab(value);
+        setSearchParams({ tab: value })
     };
     return (
         <>

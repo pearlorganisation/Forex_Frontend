@@ -4,6 +4,7 @@ import { ChevronDown, ArrowRight } from 'lucide-react'
 import instance from '../../api/api';
 import { useQuery } from '@tanstack/react-query';
 import Select from 'react-select';
+import DynamicCountry from '../DynamicCountry/DynamicCountry';
 
 const InternationalSimCards = () => {
 
@@ -25,6 +26,8 @@ const InternationalSimCards = () => {
         register,
         handleSubmit,
         watch,
+        setValue,
+        control,
         formState: { errors },
     } = useForm({
         defaultValues: {
@@ -37,11 +40,6 @@ const InternationalSimCards = () => {
     const onSubmit = (data) => {
         console.log("Form Submitted:", data);
     };
-
-
-    const cities = ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata"]
-    const currencies = ["Indian Rupee", "US Dollar", "Euro", "British Pound", "Japanese Yen"]
-    const forexCards = ["Travel Card", "Forex Card", "Multi-Currency Card"]
 
     const countryOption = data?.countries?.map((cur) => ({
         value: cur.Currencycode,
@@ -62,16 +60,15 @@ const InternationalSimCards = () => {
 
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 {/* City Selection */}
-                <div className="space-y-1.5">
-                    <label className="text-sm font-medium">{data?.countrydrpdwnlbl || 'Select Country To Travel*'}</label>
-                    <Select
-                        options={countryOption}
-                        placeholder={data?.countrywatermark}
-                        {...register("cardDoYouHave", { required: "City is required" })}
-                        classNamePrefix="react-select"
-                    />
-                    {errors.cardDoYouHave && <p className="text-red-500 text-sm">{errors.cardDoYouHave.message}</p>}
-                </div>
+                <DynamicCountry
+                    lbl={data?.trnsfrmlbl}
+                    data={data?.countries}
+                    control={control}
+                    name='countryToTravel'
+                    rules={{ required: "Country is required" }} // Add validation rule here
+                    setValue={setValue}
+                />
+                {errors.countryToTravel && <p className="text-red-500 text-sm">{errors.countryToTravel.message}</p>}
 
 
                 <div className="space-y-1.5">
