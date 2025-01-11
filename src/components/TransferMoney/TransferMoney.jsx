@@ -4,6 +4,8 @@ import { ChevronDown, ArrowRight } from 'lucide-react'
 import instance from '../../api/api'
 import Select from 'react-select';
 import { useQuery } from '@tanstack/react-query'
+import DynamicCity from '../DynamicCity/DynamicCity';
+import DynamicCountry from '../DynamicCountry/DynamicCountry';
 
 const TransferMoney = () => {
 
@@ -23,16 +25,18 @@ const TransferMoney = () => {
     const {
         register,
         handleSubmit,
-        watch,
+
+        setValue,
+        control,
         formState: { errors },
     } = useForm({
         defaultValues: {
-            city: "",
-            transferFrom: "Indian Rupee",
-            transferTo: "US Dollar",
-            product: "",
-            sendingAmount: "",
-            receivingAmount: "",
+            // city: "",
+            // transferFrom: "Indian Rupee",
+            // transferTo: "US Dollar",
+            // product: "",
+            // sendingAmount: "",
+            // receivingAmount: "",
 
         },
     });
@@ -108,42 +112,46 @@ const TransferMoney = () => {
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 {/* City Selection */}
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">{data?.citylbl || `Select City*`}</label>
-                    <Select
-                        options={cityOptions}
-                        placeholder={data?.citywatermark}
-                        {...register("city", { required: "City is required" })}
-                        classNamePrefix="react-select"
+                    <DynamicCity
+                        lbl={data?.citylbl}
+                        data={data}
+                        control={control}
+                        name="city"
+                        rules={{ required: "City is required" }} // Add validation rule here
+                        setValue={setValue}
                     />
+
                     {errors.city && <p className="text-red-500 text-sm">{errors.city.message}</p>}
                 </div>
                 {/* Currency Selection Row */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                        <label className="text-sm font-medium">{data?.trnsfrmlbl || 'Transfer From Country*'}</label>
-                        <Select
-                            options={transferFrom}
-                            placeholder={data?.trnsfrmwatermark}
-                            {...register("transferFrom", { required: "Please select the currency you have" })}
-                            classNamePrefix="react-select"
+                <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <DynamicCountry
+                            lbl={data?.trnsfrmlbl}
+                            data={data?.Transferfrom}
+                            control={control}
+                            name='transferFrom'
+                            rules={{ required: "Country is required" }} // Add validation rule here
+                            setValue={setValue}
                         />
                         {errors.transferFrom && <p className="text-red-500 text-sm">{errors.transferFrom.message}</p>}
                     </div>
 
-                    <div className="space-y-1.5">
-                        <label className="text-sm font-medium">{data?.trnstolbl || 'Transfer To Country*'}</label>
-                        <Select
-                            options={transferTo}
-                            placeholder={data?.trnstowatermark}
-                            {...register("transferTo", {
-                                required: "Please select the currency you want",
-                                validate: (value) =>
-                                    value !== watch("transferFrom") || "Currency transferFrom cannot be the same as transfer from",
-                            })}
-                            classNamePrefix="react-select"
+
+                    <div>
+                        <DynamicCountry
+                            lbl={data?.trnstolbl}
+                            data={data?.Transferto}
+                            control={control}
+                            name='transferTo'
+                            rules={{ required: "Country is required" }} // Add validation rule here
+                            setValue={setValue}
                         />
+
                         {errors.transferTo && <p className="text-red-500 text-sm">{errors.transferTo.message}</p>}
                     </div>
+
+
                 </div>
 
                 {/* Forex Cards */}
@@ -151,7 +159,7 @@ const TransferMoney = () => {
                     <label className="text-sm font-medium">Product*</label>
                     <div className="relative">
                         <select
-                            {...register("product", { required: "Please select a forex card" })}
+                            {...register("product", { required: { value: true, message: '"Please select a forex card"' } })}
                             className="w-full rounded-lg border border-gray-300 py-2.5 px-4 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="">Select a card</option>
@@ -163,7 +171,7 @@ const TransferMoney = () => {
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none w-5 h-5" />
                     </div>
-                    {errors.product && <p className="text-red-500 text-sm">{errors.forexCards.message}</p>}
+                    {errors.product && <p className="text-red-500 text-sm">{errors.product.message}</p>}
                 </div>
 
                 {/* Amount Fields */}

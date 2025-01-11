@@ -5,10 +5,13 @@ import TransferMoney from '../../components/TransferMoney/TransferMoney';
 import ReloadUnloadForexCards from '../../components/ReloadUnloadForexCards/ReloadUnloadForexCards';
 import InternationalSimCards from '../../components/InternationalSimCards/InternationalSimCards';
 import TravelInsurance from '../../components/TravelInsurance/TravelInsurance';
+import { useSearchParams } from 'react-router-dom';
 // import { TabsBtn, TabsContent, TabsProvider } from '@/components/core/tab';
 function Order() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    console.log(searchParams.get('tab'), "dtab")
     return (
-        <div className="border-2 relative bg-white/10 dark:bg-black/40 backdrop-blur-sm rounded-md p-4 h-screen"
+        <div className=" relative bg-white/10 dark:bg-black/40 backdrop-blur-sm rounded-md p-4 min-h-screen "
 
         >
             <div className='grid grid-cols-3 size-full absolute right-0 bottom-[-70vh] opacity-70  '>
@@ -40,9 +43,9 @@ function Order() {
                     }}
                 />
             </div>
-            <TabsProvider defaultValue={'exchangeCurrency'}>
+            <TabsProvider defaultValue={searchParams.get('tab') || 'exchangeCurrency'}>
                 <div className="flex justify-center mt-2 ">
-                    <div className="flex items-center w-fit  dark:bg-[#1d2025] bg-gray-200 p-1 dark:text-white text-black rounded-3xl border">
+                    <div className="flex items-center text-xs text-center md:text-base md:text-justify w-fit  dark:bg-[#1d2025] bg-gray-200 p-1 dark:text-white text-black rounded-3xl border">
                         <TabsBtn value="exchangeCurrency">
                             <span className="relative z-[2] uppercase">Exchange Currency</span>
                         </TabsBtn>
@@ -50,7 +53,7 @@ function Order() {
                             <span className="relative z-[2] uppercase">Transfer Money</span>
                         </TabsBtn>
 
-                        <TabsBtn value="reload/unloadForexCards">
+                        <TabsBtn value="reloadUnloadForexCards">
                             <span className="relative z-[2] uppercase">Reload/Unload Forex Cards</span>
                         </TabsBtn>
                         <TabsBtn value="internationalSimCards">
@@ -74,7 +77,7 @@ function Order() {
                 </TabsContent>
 
 
-                <TabsContent value="reload/unloadForexCards">
+                <TabsContent value="reloadUnloadForexCards">
                     <div className="w-full">
                         <ReloadUnloadForexCards />
                     </div>

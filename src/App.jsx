@@ -18,7 +18,7 @@ function App() {
       children: [
         {
           path: '/',
-          element: <Home />
+          element: <Home />,
         },
         {
           path: '/order',
@@ -50,6 +50,7 @@ function App() {
   const queryClient = new QueryClient()
   return (
     <QueryClientProvider client={queryClient}>
+
       <RouterProvider router={router} />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
