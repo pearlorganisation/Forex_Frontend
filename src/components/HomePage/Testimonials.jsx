@@ -96,8 +96,8 @@ const headingSkyblue = [
   "#27AAE1",
   "#27AAE1",
   "#27AAE1",
-  "#27AAE1",
-  "#27AAE1",
+  
+
 ];
 const styles = {
   container: {

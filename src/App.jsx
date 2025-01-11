@@ -8,6 +8,7 @@ import ForexRatedFAQ from './pages/ForexRatedFAQ/ForexRatedFAQ'
 import OrderDetails from './pages/orderPage'
 import TravelInsurance from './components/TravelInsurance'
 import CalendarPopUp from './components/CalendarPopUp/CalendarPopUp'
+import ForexRates from './pages/ForexRates/forexRates'
 
 function App() {
   const router = createBrowserRouter([
@@ -34,6 +35,10 @@ function App() {
         {
           path: "/calendarPopUp",
           element: <CalendarPopUp />
+        },
+        {
+          path:"/forexRates",
+          element:<ForexRates/>
         }
       ]
     }

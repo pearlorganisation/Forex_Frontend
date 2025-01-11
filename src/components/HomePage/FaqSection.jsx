@@ -116,7 +116,7 @@ const FAQ = () => {
     },
   };
 
-  const headingColor = Array(22).fill("#3CD616");
+  const headingColor = Array(18).fill("#3CD616");
 
   return (
     <div className="h-auto py-28 overflow-hidden">
@@ -135,7 +135,7 @@ const FAQ = () => {
           </div>
           <div className="flex items-center justify-center">
             <h1
-              className="text-[24px] sm:text-[28px] md:text-[32px] lg:text-[40px] text-[#012F76] font-normal leading-[32px] sm:leading-[36px] md:leading-[42px] lg:leading-[50px] mx-auto text-center decoration-none tracking-wide"
+              className="text-[24px] sm:text-[28px] md:text-[32px] lg:text-[40px] text-[#012F76] font-normal leading-[30px] sm:leading-[36px] md:leading-[42px] lg:leading-[50px] mx-auto text-center decoration-none tracking-wide"
               style={{ fontFamily: "Stoke" }}
             >
               FAQ’s
