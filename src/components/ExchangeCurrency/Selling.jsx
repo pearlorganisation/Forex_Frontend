@@ -15,6 +15,9 @@ const Selling = ({ data, isLoading }) => {
         formState: { errors },
     } = useForm();
 
+    const [inrAmount, setInrAmount] = useState(0)
+    const [currencyHaveAmt, setCurrencyHaveAmt] = useState(0)
+
     const addProduct = () => {
         const formData = watch(); // Get current form values
 
@@ -23,13 +26,10 @@ const Selling = ({ data, isLoading }) => {
             (currency) => currency.Currencycode === formData.currencyWant?.value
         );
         console.log(selectedCurrencyWant, "here")
-        const currencyPrice = selectedCurrencyWant?.Price || 0;
-
-        // Calculate the total amount based on forexAmount and currency price
-        const calculatedAmount = formData.forexAmount * currencyPrice;
+        const calculatedAmount = inrAmount;
 
         // Add the product to the list with the calculated total amount
-        setProducts([...products, { ...formData, totalAmount: calculatedAmount }]);
+        setProducts([...products, { ...formData, inrAmount, totalAmount: calculatedAmount }]);
     };
 
     const removeProduct = (index) => {
@@ -44,12 +44,12 @@ const Selling = ({ data, isLoading }) => {
 
 
     const currencyHave = data?.CurrencyHave?.map((currency) => ({
-        value: currency.Currencycode,
-        label: `${currency.Currencyname} (${currency.Currencycode})`,
+        value: currency?.Price,
+        label: `${currency.Currencyname} ${currency?.Price} (${currency.Currencycode})`,
     }));
 
     const currencyWant = data?.Currencywant?.map((currency) => ({
-        value: currency.Currencycode,
+        value: currency.Price,
         label: `${currency.Currencyname} ${currency.Price} (${currency.Currencycode})`,
     }));
 
@@ -73,19 +73,29 @@ const Selling = ({ data, isLoading }) => {
             {/* Currency You Have and Want */}
             <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                    <label className="text-sm font-medium">{data?.Currhavlbl || 'Currency you have*'}</label>
+                    <label className="text-sm font-medium">{data?.Currhavlbl}</label>
                     <Controller
                         name="currencyHave"
                         control={control}
                         rules={{ required: "Please select the currency you have" }}
                         render={({ field }) => (
-                            <Select {...field} options={currencyHave} classNamePrefix="react-select" />
+                            <Select
+                                {...field}
+                                options={currencyHave}
+                                classNamePrefix="react-select"
+                                placeholder={data?.Currhavewatermark}
+                                onChange={(e) => {
+                                    setCurrencyHaveAmt(e?.value)
+                                    field.onChange(e);
+
+                                }}
+                            />
                         )}
                     />
                     {errors.currencyHave && <p className="text-red-500 text-sm">{errors.currencyHave.message}</p>}
                 </div>
                 <div>
-                    <label className="text-sm font-medium">{data?.Currwantlbl || 'Currency you want*'}</label>
+                    <label className="text-sm font-medium">{data?.Currwantlbl}</label>
                     <Controller
                         name="currencyWant"
                         control={control}
@@ -95,7 +105,7 @@ const Selling = ({ data, isLoading }) => {
                                 value !== watch("currencyHave") || "Currency you want cannot be the same as currency you have",
                         }}
                         render={({ field }) => (
-                            <Select {...field} options={currencyWant} classNamePrefix="react-select" />
+                            <Select {...field} options={currencyWant} classNamePrefix="react-select" placeholder={data?.Currwantwatermark} />
                         )}
                     />
                     {errors.currencyWant && <p className="text-red-500 text-sm">{errors.currencyWant.message}</p>}
@@ -104,37 +114,39 @@ const Selling = ({ data, isLoading }) => {
 
             {/* Forex Cards Select */}
             <div>
-                <label className="text-sm font-medium">{data?.prodlbl || 'Select Forex Card*'}</label>
+                <label className="text-sm font-medium">{data?.prodlbl}</label>
                 <Controller
-                    name="forexCards"
+                    name="product"
                     control={control}
-                    rules={{ required: "Please select a forex card" }}
+                    rules={{ required: "Please select a Product" }}
                     render={({ field }) => (
-                        <Select {...field} options={productList} classNamePrefix="react-select" />
+                        <Select {...field} options={productList} classNamePrefix="react-select" placeholder={data?.prodwatermark} />
                     )}
                 />
-                {errors.forexCards && <p className="text-red-500 text-sm">{errors.forexCards.message}</p>}
+                {errors.product && <p className="text-red-500 text-sm">{errors.product.message}</p>}
             </div>
 
             {/* Forex and INR Amount */}
             <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                    <label className="text-sm font-medium">Forex Amount</label>
+                    <label className="text-sm font-medium">{data?.Forexlbl}</label>
                     <input
                         type="number"
-                        {...register("forexAmount", { required: "Forex amount is required" })}
+                        {...register("forexAmount", { required: "Forex amount is required", onChange: (e) => { setInrAmount(Number(currencyHaveAmt * e.target?.value).toFixed(2)) } })}
                         className="w-full border rounded-lg py-2 px-4"
-                        placeholder="Enter Forex Amount"
+                        placeholder={data?.Forexwatermark}
                     />
+                    Rate: {currencyHaveAmt}
                     {errors.forexAmount && <p className="text-red-500 text-sm">{errors.forexAmount.message}</p>}
                 </div>
                 <div>
-                    <label className="text-sm font-medium">INR Amount</label>
+                    <label className="text-sm font-medium">{data?.Inrlbl}</label>
                     <input
                         type="number"
+                        value={inrAmount}
                         {...register("inrAmount", { required: "INR amount is required" })}
                         className="w-full border rounded-lg py-2 px-4"
-                        placeholder="Enter INR Amount"
+                        placeholder={data?.InrWatermark}
                     />
                     {errors.inrAmount && <p className="text-red-500 text-sm">{errors.inrAmount.message}</p>}
                 </div>
@@ -163,22 +175,25 @@ const Selling = ({ data, isLoading }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {products.map((product, index) => (
-                                <tr key={index} className="border-b">
-                                    <td className="p-2">{product.currencyHave?.label || "N/A"}</td>
-                                    <td className="p-2">{product.forexCards?.label || "N/A"}</td>
-                                    <td className="p-2 text-right">{product.forexAmount || "N/A"}</td>
-                                    <td className="p-2 text-right">₹{product.inrAmount || "N/A"}</td>
-                                    <td className="p-2 text-center">
-                                        <button
-                                            className="text-red-500 hover:text-red-700"
-                                            onClick={() => removeProduct(index)}
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {products.map((product, index) => {
+                                console.log(product)
+                                return (
+                                    <tr key={index} className="border-b">
+                                        <td className="p-2">{product.currencyHave?.label || "N/A"}</td>
+                                        <td className="p-2">{product?.product?.label || "N/A"}</td>
+                                        <td className="p-2 text-right">{product.forexAmount || "N/A"}</td>
+                                        <td className="p-2 text-right flex flex-col">₹{product.inrAmount || "N/A"}<span className='text-xs'>{product?.currencyHave?.label}</span></td>
+                                        <td className="p-2 text-center">
+                                            <button
+                                                className="text-red-500 hover:text-red-700"
+                                                onClick={() => removeProduct(index)}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
                         </tbody>
                     </table>
 

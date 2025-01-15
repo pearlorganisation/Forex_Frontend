@@ -166,7 +166,7 @@ const TransferMoney = () => {
                             render={({ field }) => (
                                 <Select
                                     {...field}
-                                    value={receivingAmount.find((opt) => opt.value === receiving)}
+                                    value={receivingAmount?.find((opt) => opt.value === receiving)}
                                     options={receivingAmount}
                                     placeholder={data?.recwatermark || 'Select receiving amount'}
                                     classNamePrefix="react-select"
@@ -204,7 +204,7 @@ const TransferMoney = () => {
                             render={({ field }) => (
                                 <Select
                                     {...field}
-                                    value={sendingAmount.find((opt) => opt.value === sending)}
+                                    value={sendingAmount?.find((opt) => opt.value === sending)}
                                     options={sendingAmount}
                                     placeholder={data?.sendwatermark || 'Select sending amount'}
                                     classNamePrefix="react-select"

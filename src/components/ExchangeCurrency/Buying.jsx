@@ -7,6 +7,8 @@ import DynamicCity from '../DynamicCity/DynamicCity';
 const Buying = ({ data, isLoading }) => {
     const [products, setProducts] = useState([]); // State to store added products
     const { register, handleSubmit, watch, setValue, control, reset, formState: { errors } } = useForm();
+    const [inrAmount, setInrAmount] = useState(0)
+    const [currencyWantAmt, setCurrencyWantAmt] = useState(0)
 
     const addProduct = () => {
         const formData = watch(); // Get current form values
@@ -15,13 +17,12 @@ const Buying = ({ data, isLoading }) => {
         const selectedCurrencyWant = data?.Currencywant?.find(
             (currency) => currency.Currencycode === formData.currencyWant?.value
         );
-        const currencyPrice = selectedCurrencyWant?.Price || 0;
+
 
         // Calculate the total amount based on forexAmount and currency price
-        const calculatedAmount = formData.forexAmount * currencyPrice;
+        const calculatedAmount = inrAmount;
 
-        setProducts([...products, { ...formData, totalAmount: calculatedAmount }]); // Add product with calculated amount
-        reset(); // Reset the form
+        setProducts([...products, { ...formData, inrAmount, totalAmount: calculatedAmount }]); // Add product with calculated amount
     };
 
     const removeProduct = (index) => {
@@ -40,7 +41,7 @@ const Buying = ({ data, isLoading }) => {
     }));
 
     const currencyWant = data?.Currencywant?.map((currency) => ({
-        value: currency.Currencycode,
+        value: currency.Price,
         label: `${currency.Currencyname} ${currency.Price} (${currency.Currencycode})`,
     }));
 
@@ -86,9 +87,20 @@ const Buying = ({ data, isLoading }) => {
                             control={control}
                             rules={{ required: "Please select the currency you want" }}
                             render={({ field }) => (
-                                <Select {...field} options={currencyWant} classNamePrefix="react-select" />
+                                <Select
+
+                                    {...field}
+                                    options={currencyWant}
+                                    classNamePrefix="react-select"
+                                    onChange={(e) => {
+                                        setCurrencyWantAmt(e?.value)
+
+                                        field.onChange(e);
+                                    }}
+                                />
                             )}
                         />
+                        Rate: {currencyWantAmt}
                         {errors.currencyWant && (
                             <p className="text-red-500 text-sm">{errors.currencyWant.message}</p>
                         )}
@@ -117,7 +129,8 @@ const Buying = ({ data, isLoading }) => {
                         <label className="text-sm font-medium">{data?.Forexlbl}</label>
                         <input
                             type="number"
-                            {...register("forexAmount", { required: "Forex amount is required" })}
+
+                            {...register("forexAmount", { required: "Forex amount is required", onChange: (e) => { setInrAmount(Number(currencyWantAmt * e.target?.value).toFixed(2)) } })}
                             className="w-full border rounded-lg py-2 px-4"
                             placeholder="Enter Forex Amount"
                         />
@@ -129,6 +142,7 @@ const Buying = ({ data, isLoading }) => {
                         <label className="text-sm font-medium">{data?.Inrlbl}</label>
                         <input
                             type="number"
+                            value={inrAmount}
                             {...register("inrAmount", { required: "INR amount is required" })}
                             className="w-full border rounded-lg py-2 px-4"
                             placeholder="Enter INR Amount"
@@ -146,6 +160,15 @@ const Buying = ({ data, isLoading }) => {
                     onClick={addProduct}
                 >
                     + Add Product
+                </button>
+
+                {/* Book Order Button */}
+                <button
+                    type="submit"
+                    className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
+                >
+                    Book this Order
+                    <ArrowRight className="w-5 h-5" />
                 </button>
             </form>
 
