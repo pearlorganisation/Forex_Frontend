@@ -3,7 +3,7 @@ import { Controller } from "react-hook-form";
 import instance from "../../api/api";
 import AsyncSelect from "react-select/async";
 
-const DynamicCity = ({ data, lbl, setValue, control, name, rules }) => {
+const DynamicCity = ({ data, lbl, control, name, rules }) => {
   const cityOptions = data?.cityLists?.map((city) => ({
     value: city.Cityname,
     label: city.Cityname,

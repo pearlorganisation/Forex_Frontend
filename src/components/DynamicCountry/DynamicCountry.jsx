@@ -4,10 +4,10 @@ import { useDebouncedCallback } from "use-debounce";
 import AsyncSelect from "react-select/async";
 import { Controller } from "react-hook-form";
 
-const DynamicCountry = ({ data, lbl, setValue, control, name, rules }) => {
+const DynamicCountry = ({ data, lbl, control, name, rules, placeholder }) => {
 
-    const countryFromOption = data?.map((country) => ({
-        value: country.Currencycode,
+    const countryOption = data?.map((country) => ({
+        value: country.Countryname,
         label: (
             <div className="flex items-center space-x-2">
                 <img
@@ -43,12 +43,7 @@ const DynamicCountry = ({ data, lbl, setValue, control, name, rules }) => {
             return [];
         }
     };
-    // const debouncedLoadOptions = useDebouncedCallback(loadOptions, 300); // 300ms debounce it's making problem
-    // Handle city selection
-    const handleCityChange = (selectedOption) => {
-        console.log(selectedOption?.value);
-        setValue(`${name}`, selectedOption?.value); // Update form value
-    };
+
     return (
         <div className="space-y-1.5">
             <label className="text-sm font-medium">
@@ -62,8 +57,8 @@ const DynamicCountry = ({ data, lbl, setValue, control, name, rules }) => {
                     return <AsyncSelect
                         {...field}
                         loadOptions={loadOptions}
-                        defaultOptions={countryFromOption}
-                        placeholder={data?.citywatermark || "Search for a city..."}
+                        defaultOptions={countryOption}
+                        placeholder={placeholder || "Search for a city..."}
                         classNamePrefix="react-select"
                     />
                 }}

@@ -22,7 +22,7 @@ const Selling = ({ data, isLoading }) => {
         const selectedCurrencyWant = data?.Currencywant?.find(
             (currency) => currency.Currencycode === formData.currencyWant?.value
         );
-        console.log(selectedCurrencyWant)
+        console.log(selectedCurrencyWant, "here")
         const currencyPrice = selectedCurrencyWant?.Price || 0;
 
         // Calculate the total amount based on forexAmount and currency price
@@ -41,10 +41,7 @@ const Selling = ({ data, isLoading }) => {
         return (Number(sum) + Number(product.totalAmount || 0)).toFixed(2);
     }, 0);
 
-    const cityOptions = data?.cityLists?.map((city) => ({
-        value: city.Cityname,
-        label: city.Cityname,
-    }));
+
 
     const currencyHave = data?.CurrencyHave?.map((currency) => ({
         value: currency.Currencycode,
@@ -70,7 +67,6 @@ const Selling = ({ data, isLoading }) => {
                 control={control}
                 name="city"
                 rules={{ required: "City is required" }}
-                setValue={setValue}
             />
             {errors.city && <p className="text-red-500 text-sm">{errors.city.message}</p>}
 
