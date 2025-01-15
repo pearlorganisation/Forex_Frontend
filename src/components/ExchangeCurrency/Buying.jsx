@@ -148,7 +148,7 @@ const Buying = ({ data, isLoading }) => {
                     + Add Product
                 </button>
             </form>
-
+ 
             {/* Product List Table */}
             {products.length > 0 && (
                 <div className="mt-8">
