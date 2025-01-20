@@ -157,7 +157,7 @@ const TransferMoney = () => {
 
                 {/* Receiving Amount */}
                 <div className="space-y-1.5">
-                    <label className="text-sm font-medium">{data?.reclbl || 'Receiving Amount*'}</label>
+                    <label className="text-sm font-medium">{data?.reclbl}</label>
                     <div className="flex items-center gap-2 border-2 rounded-md p-[2px]">
                         <Controller
                             name="receivingAmount"
@@ -168,7 +168,7 @@ const TransferMoney = () => {
                                     {...field}
                                     value={receivingAmount?.find((opt) => opt.value === receiving)}
                                     options={receivingAmount}
-                                    placeholder={data?.recwatermark || 'Select receiving amount'}
+                                    placeholder={data?.recwatermark}
                                     classNamePrefix="react-select"
                                     onChange={(selectedOption) => {
                                         setReceiving(selectedOption?.value);

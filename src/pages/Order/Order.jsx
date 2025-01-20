@@ -19,20 +19,20 @@ function Order() {
                 <div className="flex justify-center mt-2 ">
                     <div className="flex items-center text-xs text-center md:text-base md:text-justify w-fit  dark:bg-[#1d2025] bg-gray-200 p-1 dark:text-white text-black rounded-3xl border">
                         <TabsBtn value="exchangeCurrency">
-                            <span className="relative z-[2] uppercase">Exchange Currency</span>
+                            <span className="relative z-[2] ">Exchange Currency</span>
                         </TabsBtn>
                         <TabsBtn value="transferNoney">
-                            <span className="relative z-[2] uppercase">Transfer Money</span>
+                            <span className="relative z-[2] ">Transfer Money</span>
                         </TabsBtn>
 
                         <TabsBtn value="reloadUnloadForexCards">
-                            <span className="relative z-[2] uppercase">Reload/Unload Forex Cards</span>
+                            <span className="relative z-[2] ">Reload/Unload Forex Cards</span>
                         </TabsBtn>
                         <TabsBtn value="internationalSimCards">
-                            <span className="relative z-[2] uppercase">International Sim Cards</span>
+                            <span className="relative z-[2] ">International Sim Cards</span>
                         </TabsBtn>
                         <TabsBtn value="travelInsurance">
-                            <span className="relative z-[2] uppercase">Travel Insurance</span>
+                            <span className="relative z-[2] ">Travel Insurance</span>
                         </TabsBtn>
                     </div>
                 </div>

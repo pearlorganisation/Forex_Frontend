@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import instance from '../../api/api'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { img } from 'framer-motion/client'
 
 
 // const faqs = [
@@ -69,8 +70,13 @@ export default function ForexRatedFAQ() {
     return (
         <div className="min-h-screen bg-white">
             {/* Header */}
-            <div className="bg-[#1a237e] text-white py-12 px-4 relative">
-                <div className="max-w-3xl h-[30vh] mx-auto  flex flex-col justify-center items-center">
+            <div className="bg-[#1a237e]/90 text-white py-12 px-4 relative">
+                <div className='grid grid-cols-3 absolute top-0 w-full opacity-30'>
+                    {Array.from({ length: 3 })?.map(item => {
+                        return <img className='w-full h-full' src="https://s3-alpha-sig.figma.com/img/2512/5d0a/e6cce41280d2808fb0127b01e97507ad?Expires=1737936000&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=YQ63PR-y7hxb451NOqcsr9bsUWkEW~s0qWjlLVQ7GvVzZBG~EPXK-FVboXF~twkFqjjhVRrtu~opuCFwj8aC1G6frnq3ftmirXCuxHtSxg-eq~opb6Gq3U5gcbUJ37Ru5m44mL-TdTLAbzhyEk9sGIOpTrvVY6gDJOo~uZQsP8Kvmt~LWvLSz~U4s~xivwUreqnz3HXgawX2EOVkKWa~JooMGaZTHA7pQbeCATsyOJg5DsMvZXokM~IHu3m-CRcjmor9OgihOFh2nlrccwY4UMmFQIq96tvU2qB6QaQ6jXCFIdpCjbl-c92doghLR8SgqgxbRXncmjkQbHhtl~kgxQ__" alt="" srcset="" />
+                    })}
+                </div>
+                <div className="max-w-3xl h-[35vh] mx-auto  flex flex-col justify-center items-center">
                     <Link
                         to="#"
                         className="absolute left-4 top-4 md:left-8 md:top-8 inline-flex items-center text-white/80 hover:text-white"
@@ -79,11 +85,11 @@ export default function ForexRatedFAQ() {
                         <span className="ml-1">Back</span>
                     </Link>
                     <div className="text-center space-y-3">
-                        <h1 className="text-3xl md:text-4xl font-bold mb-2 !leading-normal">
+                        <h1 className="text-3xl md:text-[60px] font-bold mb-2 !leading-normal">
                             Frequently Asked
                             <span className="block text-amber-400">Questions</span>
                         </h1>
-                        <p className="text-white/80 md:w-[70%] text-center mx-auto">
+                        <p className="text-white/80 md:w-[70%] text-base md:text-[20px] text-center mx-auto">
                             Got a question in mind? Leave it here and we will answer right away
                         </p>
                     </div>
@@ -92,7 +98,7 @@ export default function ForexRatedFAQ() {
 
             {/* FAQ List */}
             {
-                isLoading ? <>Loading</> : <div className="max-w-3xl mx-auto px-4 py-8">
+                isLoading ? <>Loading</> : <div className="max-w-6xl mx-auto px-4 py-8">
                     <div className="space-y-4 border-2 border-[#012F76] rounded-lg p-8">
                         {faqs.map((faq, index) => (
                             <div

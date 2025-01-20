@@ -7,6 +7,10 @@ import DynamicCity from '../DynamicCity/DynamicCity';
 const Buying = ({ data, isLoading }) => {
     const [products, setProducts] = useState([]); // State to store added products
     const { register, handleSubmit, watch, setValue, control, reset, formState: { errors } } = useForm();
+
+    const onSubmit = () => {
+        console.log(products, "products")
+    }
     const [inrAmount, setInrAmount] = useState(0)
     const [currencyWantAmt, setCurrencyWantAmt] = useState(0)
 
@@ -22,7 +26,7 @@ const Buying = ({ data, isLoading }) => {
         // Calculate the total amount based on forexAmount and currency price
         const calculatedAmount = inrAmount;
 
-        setProducts([...products, { ...formData, inrAmount, totalAmount: calculatedAmount }]); // Add product with calculated amount
+        setProducts([...products, { TransactionType: 'BUY', ...formData, inrAmount, totalAmount: calculatedAmount }]); // Add product with calculated amount
     };
 
     const removeProduct = (index) => {
@@ -35,14 +39,34 @@ const Buying = ({ data, isLoading }) => {
         return (Number(sum) + Number(product.totalAmount || 0)).toFixed(2)
     }, 0);
 
-    const currencyHave = data?.CurrencyHave?.map((currency) => ({
-        value: currency.Currencycode,
-        label: `${currency.Currencyname} (${currency.Price})`,
+    const currencyHave = data?.CurrencyHave?.map((cur) => ({
+        value: cur.Price,
+        label: (
+            <div className="flex items-center space-x-2">
+                <img
+                    src={cur.CurrimgUrl}
+                    alt={cur.Currencyname}
+                    className="w-5 h-5"
+                />
+                <span>{`${cur.Currencyname} (${cur.Currencycode}) ${cur?.Price}`}</span>
+            </div>
+        ),
+        currencyName: cur.Currencyname
     }));
 
-    const currencyWant = data?.Currencywant?.map((currency) => ({
-        value: currency.Price,
-        label: `${currency.Currencyname} ${currency.Price} (${currency.Currencycode})`,
+    const currencyWant = data?.Currencywant?.map((cur) => ({
+        value: cur.Price,
+        label: (
+            <div className="flex items-center space-x-2">
+                <img
+                    src={cur.CurrimgUrl}
+                    alt={cur.Currencyname}
+                    className="w-5 h-5"
+                />
+                <span>{`${cur.Currencyname} (${cur.Currencycode}) ${cur?.Price}`}</span>
+            </div>
+        ),
+        currencyName: cur.Currencyname
     }));
 
     const productList = data?.prodlist?.map((prod) => ({
@@ -52,13 +76,13 @@ const Buying = ({ data, isLoading }) => {
 
     return (
         <>
-            <form className="space-y-4" onSubmit={handleSubmit()}>
+            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 {/* City Selection */}
                 <DynamicCity
                     lbl={data?.citylbl}
                     data={data}
                     control={control}
-                    name="city"
+                    name="CityName"
                     rules={{ required: "City is required" }}
                     setValue={setValue}
                 />
@@ -69,11 +93,13 @@ const Buying = ({ data, isLoading }) => {
                     <div>
                         <label className="text-sm font-medium">{data?.Currhavlbl}</label>
                         <Controller
-                            name="currencyHave"
+                            name="FromCurrencyCode"
                             control={control}
                             rules={{ required: "Please select the currency you have" }}
                             render={({ field }) => (
-                                <Select {...field} options={currencyHave} classNamePrefix="react-select" />
+                                <Select {...field} options={currencyHave} classNamePrefix="react-select"
+
+                                />
                             )}
                         />
                         {errors.currencyHave && (
@@ -83,7 +109,7 @@ const Buying = ({ data, isLoading }) => {
                     <div>
                         <label className="text-sm font-medium">{data?.Currwantlbl}</label>
                         <Controller
-                            name="currencyWant"
+                            name="ToCurrencyCode"
                             control={control}
                             rules={{ required: "Please select the currency you want" }}
                             render={({ field }) => (
@@ -94,13 +120,12 @@ const Buying = ({ data, isLoading }) => {
                                     classNamePrefix="react-select"
                                     onChange={(e) => {
                                         setCurrencyWantAmt(e?.value)
-
                                         field.onChange(e);
                                     }}
                                 />
                             )}
                         />
-                        Rate: {currencyWantAmt}
+
                         {errors.currencyWant && (
                             <p className="text-red-500 text-sm">{errors.currencyWant.message}</p>
                         )}
@@ -111,7 +136,7 @@ const Buying = ({ data, isLoading }) => {
                 <div>
                     <label className="text-sm font-medium">{data?.prodlbl}</label>
                     <Controller
-                        name="forexCards"
+                        name="ProductName"
                         control={control}
                         rules={{ required: "Please select a forex card" }}
                         render={({ field }) => (
@@ -130,10 +155,11 @@ const Buying = ({ data, isLoading }) => {
                         <input
                             type="number"
 
-                            {...register("forexAmount", { required: "Forex amount is required", onChange: (e) => { setInrAmount(Number(currencyWantAmt * e.target?.value).toFixed(2)) } })}
+                            {...register("ForexAmount", { required: "Forex amount is required", onChange: (e) => { setInrAmount(Number(currencyWantAmt * e.target?.value).toFixed(2)) } })}
                             className="w-full border rounded-lg py-2 px-4"
                             placeholder="Enter Forex Amount"
                         />
+                        Rate: {currencyWantAmt}
                         {errors.forexAmount && (
                             <p className="text-red-500 text-sm">{errors.forexAmount.message}</p>
                         )}
@@ -143,7 +169,7 @@ const Buying = ({ data, isLoading }) => {
                         <input
                             type="number"
                             value={inrAmount}
-                            {...register("inrAmount", { required: "INR amount is required" })}
+                            {...register("INRAmount", { required: "INR amount is required" })}
                             className="w-full border rounded-lg py-2 px-4"
                             placeholder="Enter INR Amount"
                         />
@@ -190,14 +216,12 @@ const Buying = ({ data, isLoading }) => {
                                 console.log(product)
                                 return (
                                     <tr key={index} className="border-b">
-                                        <td className="p-2">{product.currencyHave?.label || "N/A"}</td>
-                                        <td className="p-2">{product.forexCards?.label || "N/A"}</td>
-                                        <td className="p-2 text-right flex flex-col">{product.forexAmount || "N/A"}<span className='text-xs'>{product?.currencyWant?.label}</span></td>
+                                        <td className="p-2">{product.FromCurrencyCode?.label || "N/A"}</td>
+                                        <td className="p-2">{product.ProductName?.label || "N/A"}</td>
+                                        <td className="p-2 text-right flex flex-col">{product.ForexAmount || "N/A"}<span className='text-xs'>Rate {product?.FromCurrencyCode?.value}</span></td>
                                         <td className="p-2 text-right">₹{product.inrAmount || "N/A"}</td>
                                         <td className="p-2 text-center">
-                                            <button className="text-blue-500 hover:text-blue-700 mr-2">
-                                                <Edit size={16} />
-                                            </button>
+
                                             <button
                                                 className="text-red-500 hover:text-red-700"
                                                 onClick={() => removeProduct(index)}
@@ -221,6 +245,13 @@ const Buying = ({ data, isLoading }) => {
         </>
     );
 };
+
+
+
+
+
+
+
 
 export default Buying;
 
