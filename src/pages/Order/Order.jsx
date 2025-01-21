@@ -6,9 +6,12 @@ import ReloadUnloadForexCards from '../../components/ReloadUnloadForexCards/Relo
 import InternationalSimCards from '../../components/InternationalSimCards/InternationalSimCards';
 import TravelInsurance from '../../components/TravelInsurance/TravelInsurance';
 import { useSearchParams } from 'react-router-dom';
+import { createPortal } from 'react-dom';
+import UserDetail from '../../components/UserDetail/UserDetail';
 // import { TabsBtn, TabsContent, TabsProvider } from '@/components/core/tab';
 function Order() {
     const [searchParams, setSearchParams] = useSearchParams();
+
     console.log(searchParams.get('tab'), "dtab")
     return (
         <div className=" relative bg-white/10 dark:bg-black/40 backdrop-blur-sm rounded-md p-4 min-h-screen "
@@ -96,6 +99,9 @@ function Order() {
                     />
                 </div>
             </div>
+            {
+                true && createPortal(<UserDetail />, document.body)
+            }
         </div>
     );
 }

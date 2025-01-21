@@ -3,30 +3,59 @@ import { Controller, useForm } from 'react-hook-form';
 import Select from 'react-select';
 import { ArrowRight, Edit, Trash2 } from 'lucide-react';
 import DynamicCity from '../DynamicCity/DynamicCity';
+import { useMutation } from '@tanstack/react-query';
+import instance from '../../api/api';
 
-const Buying = ({ data, isLoading }) => {
+const generateEnquiry = async (payload) => {
+    const response = await instance.post(`/api/Forex/GenerateEnquiry`, payload);
+    return response?.data;
+};
+
+
+
+
+const Buying = ({ data }) => {
     const [products, setProducts] = useState([]); // State to store added products
     const { register, handleSubmit, watch, setValue, control, reset, formState: { errors } } = useForm();
+    const { mutate, isPending } = useMutation({
+        mutationFn: generateEnquiry,
+        onSuccess: (data) => {
+            console.log(data, 'Success');
+            alert('Enquiry submitted successfully!');
+        },
+        onError: (error) => {
+            console.error('Error:', error);
+            alert('There was an error submitting your enquiry.');
+        },
+    });
 
     const onSubmit = () => {
-        console.log(products, "products")
+        const data = JSON.parse(localStorage.getItem("userDetails"));
+        const payload = {
+            ...data, enquiryData: products?.map(item => {
+                return {
+                    ...item,
+                    CityName: item?.CityName?.value,
+                    FromCurrencyCode: item?.FromCurrencyCode?.currencyCode,
+                    ToCurrencyCode: item?.ToCurrencyCode?.currencyCode,
+                    ConversionAmount: Number(item?.ToCurrencyCode?.value),
+                    ProductName: item?.ProductName?.value,
+                    ForexAmount: Number(item?.ForexAmount),
+                    INRAmount: Number(item?.INRAmount),
+
+
+                }
+            })
+        }
+        mutate(payload)
+        console.log(payload, "products")
     }
-    const [inrAmount, setInrAmount] = useState(0)
+    const [inrAmount, setInrAmount] = useState()
     const [currencyWantAmt, setCurrencyWantAmt] = useState(0)
 
     const addProduct = () => {
-        const formData = watch(); // Get current form values
-
-        // Find the selected currencyWant and extract its price
-        const selectedCurrencyWant = data?.Currencywant?.find(
-            (currency) => currency.Currencycode === formData.currencyWant?.value
-        );
-
-
-        // Calculate the total amount based on forexAmount and currency price
-        const calculatedAmount = inrAmount;
-
-        setProducts([...products, { TransactionType: 'BUY', ...formData, inrAmount, totalAmount: calculatedAmount }]); // Add product with calculated amount
+        const formData = watch(); // Get current form value
+        setProducts([...products, { TransactionType: 'BUY', ...formData }]); // Add product with calculated amount
     };
 
     const removeProduct = (index) => {
@@ -35,8 +64,7 @@ const Buying = ({ data, isLoading }) => {
 
     // Calculate the overall total amount
     const grandTotal = products.reduce((sum, product) => {
-        console.log(typeof sum)
-        return (Number(sum) + Number(product.totalAmount || 0)).toFixed(2)
+        return (Number(sum) + Number(product.INRAmount || 0)).toFixed(2)
     }, 0);
 
     const currencyHave = data?.CurrencyHave?.map((cur) => ({
@@ -51,7 +79,8 @@ const Buying = ({ data, isLoading }) => {
                 <span>{`${cur.Currencyname} (${cur.Currencycode}) ${cur?.Price}`}</span>
             </div>
         ),
-        currencyName: cur.Currencyname
+        currencyName: cur.Currencyname,
+        currencyCode: cur.Currencycode,
     }));
 
     const currencyWant = data?.Currencywant?.map((cur) => ({
@@ -66,7 +95,8 @@ const Buying = ({ data, isLoading }) => {
                 <span>{`${cur.Currencyname} (${cur.Currencycode}) ${cur?.Price}`}</span>
             </div>
         ),
-        currencyName: cur.Currencyname
+        currencyName: cur.Currencyname,
+        currencyCode: cur.Currencycode,
     }));
 
     const productList = data?.prodlist?.map((prod) => ({
@@ -155,7 +185,11 @@ const Buying = ({ data, isLoading }) => {
                         <input
                             type="number"
 
-                            {...register("ForexAmount", { required: "Forex amount is required", onChange: (e) => { setInrAmount(Number(currencyWantAmt * e.target?.value).toFixed(2)) } })}
+                            {...register("ForexAmount", {
+                                required: "Forex amount is required", onChange: (e) => {
+                                    setValue("INRAmount", Number(currencyWantAmt * e.target?.value).toFixed(2))
+                                }
+                            })}
                             className="w-full border rounded-lg py-2 px-4"
                             placeholder="Enter Forex Amount"
                         />
@@ -167,14 +201,14 @@ const Buying = ({ data, isLoading }) => {
                     <div>
                         <label className="text-sm font-medium">{data?.Inrlbl}</label>
                         <input
-                            type="number"
-                            value={inrAmount}
+                            type="text"
+                            // value={inrAmount}
                             {...register("INRAmount", { required: "INR amount is required" })}
                             className="w-full border rounded-lg py-2 px-4"
                             placeholder="Enter INR Amount"
                         />
-                        {errors.inrAmount && (
-                            <p className="text-red-500 text-sm">{errors.inrAmount.message}</p>
+                        {errors.INRAmount && (
+                            <p className="text-red-500 text-sm">{errors.INRAmount.message}</p>
                         )}
                     </div>
                 </div>
@@ -189,13 +223,20 @@ const Buying = ({ data, isLoading }) => {
                 </button>
 
                 {/* Book Order Button */}
-                <button
-                    type="submit"
-                    className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
-                >
-                    Book this Order
-                    <ArrowRight className="w-5 h-5" />
-                </button>
+                {
+                    isPending ? <button
+                        type="button"
+                        className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
+                    >
+                        Loading...
+                    </button> : <button
+                        type="submit"
+                        className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
+                    >
+                        Book this Order
+                        <ArrowRight className="w-5 h-5" />
+                    </button>
+                }
             </form>
 
             {/* Product List Table */}
@@ -219,7 +260,7 @@ const Buying = ({ data, isLoading }) => {
                                         <td className="p-2">{product.FromCurrencyCode?.label || "N/A"}</td>
                                         <td className="p-2">{product.ProductName?.label || "N/A"}</td>
                                         <td className="p-2 text-right flex flex-col">{product.ForexAmount || "N/A"}<span className='text-xs'>Rate {product?.FromCurrencyCode?.value}</span></td>
-                                        <td className="p-2 text-right">₹{product.inrAmount || "N/A"}</td>
+                                        <td className="p-2 text-right">₹{product.INRAmount || "N/A"}</td>
                                         <td className="p-2 text-center">
 
                                             <button
