@@ -20,7 +20,7 @@ const InternationalSimCards = () => {
         })
     }
 
-    const { data, isLoading, error } = useSimCards()
+    const { data, isLoading, error } =  useSimCards()
     const [totalAmount, setTotalAmount] = useState(0);
     const {
         register,
@@ -39,6 +39,12 @@ const InternationalSimCards = () => {
 
     const onSubmit = (data) => {
         console.log("Form Submitted:", data);
+const payloadData={
+    TransferToCountry:data.countryToTravel.value,
+    TravelEnddate: data.endDate,
+    TravelStartdate:data.startDate
+}
+console.log("payload",payloadData)
     };
 
     const countryOption = data?.countries?.map((cur) => ({

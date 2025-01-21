@@ -75,7 +75,7 @@ export const TabsBtn = ({ children, className, value }) => {
             <>
                 <motion.div
                     className={cn(
-                        `cursor-pointer sm:p-2 p-1 sm:px-4 px-2 !rounded-3xl relative `,
+                        `cursor-pointer sm:p-2 p-1 sm:px-4 px-2 !rounded-3xl relative ${activeTab === value ? 'text-white bg-[#012F76] font-semibold' : ''}  `,
                         className
                     )}
                     onFocus={() => {
@@ -99,7 +99,7 @@ export const TabsBtn = ({ children, className, value }) => {
                                     },
                                 }}
                                 layoutId={defaultValue}
-                                className="absolute w-full h-full left-0 top-0 dark:bg-base-dark bg-white rounded-3xl  z-[1]"
+                                className="absolute w-full h-full left-0 top-0 dark:bg-base-dark rounded-3xl  z-[1]"
                             />
                         </AnimatePresence>
                     )}
@@ -117,7 +117,7 @@ export const TabsBtn = ({ children, className, value }) => {
                                         //     },
                                         // }}
                                         layoutId={defaultValue}
-                                        className="absolute w-full h-full left-0 top-0 dark:bg-base-dark bg-white rounded-3xl  z-[1] tab-shadow"
+                                        className="absolute w-full h-full left-0 top-0 dark:bg-base-dark rounded-3xl  z-[1] tab-shadow"
                                     />
                                 </AnimatePresence>
                             )}
@@ -132,7 +132,7 @@ export const TabsBtn = ({ children, className, value }) => {
                                         //     },
                                         // }}
                                         layoutId={`${defaultValue}b`}
-                                        className="absolute w-full h-full left-0 top-0 dark:bg-base-dark bg-white rounded-3xl  z-[1] tab-shadow"
+                                        className="absolute w-full h-full left-0 top-0 dark:bg-base-dark rounded-3xl  z-[1] tab-shadow"
                                     />
                                 </AnimatePresence>
                             )}
@@ -161,7 +161,7 @@ export const TabsContent = ({ children, className, value, yValue }) => {
                         //     ease: 'easeInOut',
                         //     delay: 0.5,
                         // }}
-                        className={cn(' p-2 px-4 rounded-md relative', className)}
+                        className={cn(' p-2 px-4 rounded-md relative ', className)}
                     >
                         {activeTab === value ? children : null}
                     </motion.div>

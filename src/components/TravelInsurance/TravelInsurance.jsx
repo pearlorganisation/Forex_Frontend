@@ -39,6 +39,14 @@ const TravelInsurance = () => {
 
     const onSubmit = (data) => {
         console.log("Form Submitted:", data);
+    const payloadData={
+       MemberAge:data.ageOfTravellers,
+       CityName:data.destination,
+       TravelStartdate:data.startDate,
+       TravelEnddate:data.returnDate
+
+    }
+    console.log("payloadData",payloadData)
     };
 
 

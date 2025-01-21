@@ -1,215 +1,239 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { ChevronDown, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { ChevronDown, ArrowRight, Trash2 } from 'lucide-react'
 import Select from 'react-select';
 
 const ReloadForex = ({ data }) => {
-  console.log("dattttt",data)
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [addedProducts, setAddedProducts] = useState([]); 
-  const [selectedCard, setSelectedCard] = useState(null); 
-  const [selectedCurrency, setSelectedCurrency] = useState(null); 
-console.log("selected currency",selectedCurrency)
-  console.log("addproduct",addedProducts)
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      forexAmount: '',
-      inrAmount: '',
-    },
-  });
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [totalInr, setTotalInr] = useState(0);
+    const [rate, setRate] = useState(0);
+    const [products, setProducts] = useState([]); // State to store added products
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+        control,
+        setValue
+    } = useForm({
 
-  const onSubmit = (formData) => {
-    console.log('Form SUBMIT', formData);
-  };
+    });
 
-  const handleAddProduct = () => {
+    const addProduct = () => {
+        const formData = watch(); // Get current form values
+        const calculatedAmount = totalInr;
+        console.log(formData)
 
-    const formData = watch();
-    if (!formData.forexAmount || !formData.inrAmount || !selectedCard || !selectedCurrency) {
-      alert('Please fill in all required fields before adding a product.');
-      return;
-    }
+        // Add the product to the list with the calculated total amount
+        setProducts([...products, { ...formData, totalInr, totalAmount: calculatedAmount }]);
+    };
 
-    const currencyPrice = selectedCurrency?.price || 1; 
-    console.log("currencyprice",currencyPrice)
-    const calculatedAmount = formData.forexAmount * currencyPrice;
+    const removeProduct = (index) => {
+        setProducts(products.filter((_, i) => i !== index)); // Remove the product by index
+    };
 
-    setAddedProducts((prev) => [
-      ...prev,
-      {
-        cardDoYouHave: selectedCard?.label || 'N/A',
-        forexAmount: formData.forexAmount,
-        inrAmount: formData.inrAmount,
-        currencyWant: selectedCurrency?.label || 'N/A',
-      },
-    ]);
+    // Calculate the overall total amount
+    const grandTotal = products.reduce((sum, product) => {
+        return (Number(sum) + Number(product.totalAmount || 0)).toFixed(2);
+    }, 0);
+
+    const onSubmit = (data) => {
+        console.log("Form Submitted:", data);
+        const payloadData={
+            ProductName:data.cardDoYouHave.value,
+            CurrencyUpload:data.currency.value,
+            ForexAmount:data.forexAmount,
+            INRAmount:data.inrAmount,
+        }
+        console.log("payloadData",payloadData)
+    };
 
 
-    setTotalAmount((prevTotal) => prevTotal + calculatedAmount);
-  };
+    const cardOptions = data?.cardlist?.map((card) => ({
+        value: card.Cardname,
+        label: card.Cardname,
+    }));
+    const currencyListOption = data?.currencylist?.map((cur) => ({
+        value: cur?.Price,
+        label: (
+            <div className="flex items-center space-x-2">
+                <img
+                    src={cur.CurrimgUrl}
+                    alt={cur.Currencyname}
+                    className="w-5 h-5"
+                />
+                <span>{`${cur.Currencyname} (${cur.Currencycode}) ${cur?.Price}`}</span>
+            </div>
+        ),
+        currencyName: cur.Currencyname
+    }));
 
-  const cardOptions = data?.cardlist?.map((card) => ({
-    value: card.Cardname,
-    label: card.Cardname,
-  }));
-  console.log(cardOptions,"cardoprtion")
 
-  const currencyListOption = data?.currencylist?.map((cur) => ({
+    return (
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+            {/* City Selection */}
+            <div className="space-y-1.5">
+                <label className="text-sm font-medium">{data?.ForexCardTypelbl}</label>
+                <Controller
+                    name="cardDoYouHave"
+                    control={control}
+                    rules={{ required: "City is required" }}
+                    render={({ field }) => (
+                        <Select
+                            {...field}
+                            options={cardOptions}
+                            placeholder={data?.cardtypewatermark}
+                            classNamePrefix="react-select"
+                        />
+                    )}
+                />
+                {errors.cardDoYouHave && <p className="text-red-500 text-sm">{errors.cardDoYouHave.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+                <label className="text-sm font-medium">{data?.Currencylistlbl}</label>
+                <Controller
+                    name="currency"
+                    control={control}
+                    rules={{ required: "Currency is required" }}
+                    render={({ field }) => (
+                        <Select
+                            {...field}
+                            options={currencyListOption}
+                            placeholder={data?.Currwatermark}
+                            classNamePrefix="react-select"
+                            onChange={(selectedOption) => {
+                                setRate(selectedOption?.value);
+                                field.onChange(selectedOption);
+                            }}
+                        />
+                    )}
+                />
+                {errors.currency && <p className="text-red-500 text-sm">{errors.currency.message}</p>}
+            </div>
 
-    value: cur.Currencycode,
-    label: (
-      <div className="flex items-center space-x-2">
-        <img src={cur.CurrimgUrl} alt={cur.Currencyname} className="w-5 h-5" />
-        <span>{`${cur.Currencyname} (${cur.Currencycode}) ${cur?.Price}`}</span>
-      </div>
-    ),
-    price: cur.Price, 
-  }));
-  
-  console.log("curee",currencyListOption)
 
-  if (!data) {
-    return <div>Loading...</div>; 
-  }
+            {/* Currency Selection Row */}
+            <div className="grid grid-cols-2 gap-4">
+                {/* Amount Fields */}
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium"> {data?.forexcontrollbl}</label>
+                    <input
+                        type="number"
+                        {...register("forexAmount", {
+                            required: "Forex amount is required",
+                            min: { value: 1, message: "Amount must be greater than zero" },
+                            onChange: (e) => {
+                                const val = e.target.value
+                                const total = val * rate
+                                setTotalInr(total.toFixed(2))
+                                setValue("inrAmount", total.toFixed(2))
+                                console.log(total.toFixed(2), "total")
+                            }
+                        })}
+                        className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={`${data?.forexcontrolwatermark}`}
+                    />
+                    <div className="text-left">Rate: {rate && rate}</div>
+                    {errors.forexAmount && <p className="text-red-500 text-sm">{errors.forexAmount.message}</p>}
+                </div>
 
-  return (
-    <div className="space-y-8">
-      {/* Form Section */}
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        {/* Card Selection */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">
-            {data?.ForexCardTypelbl || `What kind of card do you have?*`}
-          </label>
-          <Select
-            options={cardOptions}
-            placeholder={data?.cardtypewatermark}
-            value={selectedCard}
-            onChange={(selectedOption) => setSelectedCard(selectedOption)}
-            classNamePrefix="react-select"
-          />
-          {!selectedCard && (
-            <p className="text-red-500 text-sm">Card type is required</p>
-          )}
+                <div className="space-y-1.5">
+                    <label className="text-sm font-medium"> {data?.inrcontrollbl}</label>
+                    <input
+                        type="number"
+                        {...register("inrAmount", {
+                            required: "Inr amount is required",
+                            min: { value: 1, message: "Amount must be greater than zero" },
+                        })}
+                        // value={totalInr}
+                        className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={`${data?.inrcontrolwatermark}`}
+                    />
+                    {errors.inrAmount && <p className="text-red-500 text-sm">{errors.inrAmount.message}</p>}
+                </div>
+            </div>
+
+{/* Product List Table */}
+{products.length > 0 && (
+    <div className="mt-8">
+        {/* Heading Section */}
+        <div className="text-center mb-4">
+            <h2 className="text-2xl font-semibold">Product List</h2>
         </div>
 
-        {/* Currency Selection */}
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">
-            {data?.Currencylistlbl || 'What kind of currency do you want?*'}
-          </label>
-          <Select
-            options={currencyListOption}
-            placeholder={data?.Currwatermark}
-            value={selectedCurrency}
-            onChange={(selectedOption) =>{
-              console.log("selectedonchnge",selectedOption)
-              setSelectedCurrency(selectedOption)}}
-            classNamePrefix="react-select"
-          />
-          {!selectedCurrency && (
-            <p className="text-red-500 text-sm">Currency selection is required</p>
-          )}
+        {/* Table Section */}
+        <div className="overflow-x-auto">
+            <table className="min-w-full border border-collapse">
+                <thead>
+                    <tr className="bg-gray-100 border-b">
+                        <th className="p-2 text-left">Currency</th>
+                        <th className="p-2 text-left">Product</th>
+                        <th className="p-2 text-right">Forex Amount</th>
+                        <th className="p-2 text-right">INR Amount</th>
+                        <th className="p-2 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {products.map((product, index) => (
+                        <tr key={index} className="border-b">
+                            <td className="p-2">{product.currency?.currencyName || "N/A"}</td>
+                            <td className="p-2">{product?.cardDoYouHave?.label || "N/A"}</td>
+                            <td className="p-2 text-center">{product.forexAmount || "N/A"}</td>
+                            <td className="p-2 text-center">
+                                ₹{product.inrAmount || "N/A"}{" "}
+                                <span className="text-xs">{product?.currency?.value}</span>
+                            </td>
+                            <td className="p-2 text-center">
+                                <button
+                                    className="text-red-500 hover:text-red-700"
+                                    onClick={() => removeProduct(index)}
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
 
-   
-        <div className="grid grid-cols-2 gap-4">
-          {/* Amount Fields */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              {data?.forexcontrollbl || `Forex Amount*`}
-            </label>
-            <input
-              type="number"
-              {...register('forexAmount', {
-                required: 'Forex amount is required',
-                min: { value: 1, message: 'Amount must be greater than zero' },
-              })}
-              className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={`${data?.forexcontrolwatermark || `Enter amount`}`}
-            />
-            {errors.forexAmount && (
-              <p className="text-red-500 text-sm">{errors.forexAmount.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              {data?.inrcontrollbl || `INR Amount*`}
-            </label>
-            <input
-              type="number"
-              {...register('inrAmount', {
-                required: 'INR amount is required',
-                min: { value: 1, message: 'Amount must be greater than zero' },
-              })}
-              className="w-full rounded-lg border border-gray-300 py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={`${data?.inrcontrolwatermark || `Enter amount`}`}
-            />
-            {errors.inrAmount && (
-              <p className="text-red-500 text-sm">{errors.inrAmount.message}</p>
-            )}
-          </div>
+        {/* Grand Total Display */}
+        <div className="mt-4 text-right">
+            <span className="text-lg font-medium">Total: </span>
+            <span className="text-xl font-semibold">₹{grandTotal}</span>
         </div>
-
-        {/* Add Product Button */}
-        <div className="flex items-center justify-between pt-2">
-          <div>
-            <span className="text-sm font-medium">Total Amount: </span>
-            <span className="text-lg font-semibold">₹{totalAmount}</span>
-          </div>
-          <button
-            type="button"
-            onClick={handleAddProduct}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-          >
-            + Add Product
-          </button>
-        </div>
-
-        {/* Book Order Button */}
-        <button
-          type="submit"
-          className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
-        >
-          Book this Order
-          <ArrowRight className="w-5 h-5" />
-        </button>
-      </form>
-
-      {/* Table Section */}
-      {addedProducts.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold">Added Products</h2>
-          <table className="w-full border border-gray-300 mt-4">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border border-gray-300">Card Type</th>
-                <th className="p-2 border border-gray-300">Forex Amount</th>
-                <th className="p-2 border border-gray-300">INR Amount</th>
-                <th className="p-2 border border-gray-300">Currency</th>
-              </tr>
-            </thead>
-            <tbody>
-              {addedProducts.map((product, index) => (
-                <tr key={index} className="text-center">
-                  <td className="p-2 border border-gray-300">{product.cardDoYouHave}</td>
-                  <td className="p-2 border border-gray-300">{product.forexAmount}</td>
-                  <td className="p-2 border border-gray-300">{product.inrAmount}</td>
-                  <td className="p-2 border border-gray-300">{product.currencyWant}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
-  );
-};
+)}
 
-export default ReloadForex;
+
+            {/* Total Amount */}
+            <div className="flex items-center justify-between pt-2">
+                <div>
+                    <span className="text-sm font-medium">Total Amount: </span>
+                    <span className="text-lg font-semibold">₹{totalAmount}</span>
+                </div>
+                <button
+                    onClick={addProduct}
+                    type="button"
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                >
+                    + Add Product
+                </button>
+            </div>
+
+
+
+            {/* Book Order Button */}
+            <button
+                type="submit"
+                className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
+            >
+                Book this Order
+                <ArrowRight className="w-5 h-5" />
+            </button>
+        </form>
+    )
+}
+
+
+export default ReloadForex
