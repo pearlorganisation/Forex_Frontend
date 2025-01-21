@@ -42,8 +42,6 @@ const Selling = ({ data }) => {
                     ProductName: item?.ProductName?.value,
                     ForexAmount: Number(item?.ForexAmount),
                     INRAmount: Number(item?.INRAmount),
-
-
                 }
             })
         }
