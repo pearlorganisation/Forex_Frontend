@@ -45,7 +45,7 @@ const Selling = ({ data }) => {
                 }
             })
         }
-        // mutate(payload)
+        mutate(payload)
         console.log(payload, "products")
     }
     const [inrAmount, setInrAmount] = useState()
