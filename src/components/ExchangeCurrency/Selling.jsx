@@ -31,6 +31,7 @@ const Selling = ({ data }) => {
 
     const onSubmit = () => {
         const data = JSON.parse(localStorage.getItem("userDetails"));
+        console.log("prod",products)
         const payload = {
             ...data, enquiryData: products?.map(item => {
                 return {
@@ -47,7 +48,7 @@ const Selling = ({ data }) => {
                 }
             })
         }
-        // mutate(payload)
+        mutate(payload)
         console.log(payload, "products")
     }
     const [inrAmount, setInrAmount] = useState()

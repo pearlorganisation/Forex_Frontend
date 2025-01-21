@@ -3,13 +3,18 @@ import { Controller, useForm } from 'react-hook-form';
 import { ArrowRight } from 'lucide-react';
 import instance from '../../api/api';
 import Select from 'react-select';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import DynamicCity from '../DynamicCity/DynamicCity';
 import DynamicCountry from '../DynamicCountry/DynamicCountry';
 
 const TransferMoney = () => {
     const fetchTransferMoney = async () => {
         const response = await instance.get(`/api/Forex/GetForexHomePage`);
+        return response?.data;
+    };
+    
+    const generateEnquiry = async (payload) => {
+        const response = await instance.post(`/api/Forex/GenerateEnquiry`, payload);
         return response?.data;
     };
 
@@ -29,27 +34,63 @@ const TransferMoney = () => {
     const [sending, setSending] = useState(null);
     const [rate, setRate] = useState(0);
 
-    const {
-        register,
-        handleSubmit,
-        control,
-        setValue,
-        formState: { errors },
-    } = useForm();
+    const { mutate, isPending } = useMutation({
+        mutationFn: generateEnquiry,
+        onSuccess: (data) => {
+            console.log("Success", data);
+            alert('Enquiry submitted successfully');
+        },
+        onError: (error) => {
+            console.error('Error:', error);
+            alert('There was an error submitting your enquiry.');
+        },
+    });
+
+    const { register, handleSubmit, control, setValue, formState: { errors } } = useForm();
 
     const onSubmit = (data) => {
-        console.log('Form Submitted:', data);
-    const transferMoney={
-        CityName:data.city.value,
-        ProductName:data.product.value,
-        RecCurrency:data.receivingAmount.value,
-        SendCurrency:data.sendingAmount.value,
-        TransferCountry:data.transferFrom.value,
-        TransferToCountry:data.transferTo.value,    
-        
-    }
-console.log("transferMoney=",transferMoney)
-    }; 
+        try {
+    
+            const userData = JSON.parse(localStorage.getItem("userDetails"));
+            if (!userData) {
+                alert("User details not found. Please log in again.");
+                return;
+            }
+    
+            console.log("Form Data:", data);
+    
+ 
+            const payload = {
+                ...userData,
+                enquiryData: Object.entries(data).map(([key, value]) => ({
+                    CityName: value?.CityName?.value || "",
+                    FromCurrencyCode: value?.FromCurrencyCode?.currencyCode || "",
+                    ToCurrencyCode: value?.ToCurrencyCode?.currencyCode || "",
+                    ConversionAmount: Number(value?.ToCurrencyCode?.value) || 0,
+                    ProductName: value?.ProductName?.value || "",
+                    ForexAmount: Number(value?.ForexAmount) || 0,
+                    INRAmount: Number(value?.INRAmount) || 0,
+                })),
+            };
+    
+            console.log("Final Payload:", payload);
+    
+            mutate(payload, {
+                onSuccess: (response) => {
+                    console.log("Success:", response);
+                    alert("Enquiry submitted successfully!");
+                },
+                onError: (error) => {
+                    console.error("Error submitting enquiry:", error);
+                    alert("There was an error submitting your enquiry. Please try again.");
+                },
+            });
+        } catch (error) {
+            console.error("Error in onSubmit function:", error);
+            alert("An unexpected error occurred. Please try again.");
+        }
+    };
+    
 
     useEffect(() => {
         const receivingAmt = data?.ReceiveAmount?.map((rec) => ({
@@ -222,7 +263,6 @@ console.log("transferMoney=",transferMoney)
                                         setSending(selectedOption?.value);
                                         field.onChange(selectedOption);
                                     }}
-
                                 />
                             )}
                         />
@@ -246,13 +286,22 @@ console.log("transferMoney=",transferMoney)
                 </div>
 
                 {/* Book Order Button */}
-                <button
-                    type="submit"
-                    className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
-                >
-                    Book this Order
-                    <ArrowRight className="w-5 h-5" />
-                </button>
+                {isPending ? (
+                    <button
+                        type="submit"
+                        className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
+                    >
+                        Loading...
+                    </button>
+                ) : (
+                    <button
+                        type="submit"
+                        className="w-full bg-[#012F76] text-white py-3 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-blue-900 transition-colors"
+                    >
+                        Book this Order
+                        <ArrowRight className="w-5 h-5" />
+                    </button>
+                )}
             </form>
         </div>
     );
