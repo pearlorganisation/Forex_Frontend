@@ -60,22 +60,35 @@ const TransferMoney = () => {
             console.log("Form Data:", data);
     
  
-            const payload = {
-                ...userData,
-                enquiryData: Object.entries(data).map(([key, value]) => ({
-                    CityName: value?.CityName?.value || "",
-                    FromCurrencyCode: value?.FromCurrencyCode?.currencyCode || "",
-                    ToCurrencyCode: value?.ToCurrencyCode?.currencyCode || "",
-                    ConversionAmount: Number(value?.ToCurrencyCode?.value) || 0,
-                    ProductName: value?.ProductName?.value || "",
-                    ForexAmount: Number(value?.ForexAmount) || 0,
-                    INRAmount: Number(value?.INRAmount) || 0,
-                })),
+            const enquiryData = [
+                {
+                    CityName: data?.city?.value || "",
+                    FromCurrencyCode: data?.transferFrom?.value || "",
+                    ToCurrencyCode: data?.transferTo?.value || "",
+                    ConversionAmount: Number(data?.receivingAmount?.value || 0),
+                    ProductName: data?.product?.value || "",
+                    ForexAmount: Number(data?.sendingAmount?.value || 0),
+                    INRAmount: Number(data?.INRAmount || 0),
+                },
+            ];
+            
+            console.log("Mapped Enquiry Data:", enquiryData);
+            
+            const finalPayload = {
+                CustomerName: "anjali bartwal",
+                Phone: "07906550720",
+                Email: "anjalibartwal67@gmail.com",
+                enquiryData: enquiryData,
             };
-    
-            console.log("Final Payload:", payload);
-    
-            mutate(payload, {
+            
+            console.log("Final Payload:", finalPayload);
+            
+            
+            console.log("Final Payload:", finalPayload);
+            
+            
+     
+            mutate(finalPayload, {
                 onSuccess: (response) => {
                     console.log("Success:", response);
                     alert("Enquiry submitted successfully!");
@@ -142,7 +155,7 @@ const TransferMoney = () => {
     const forexCards = ['Travel Card', 'Forex Card', 'Multi-Currency Card'];
 
     return (
-        <div className="w-full max-w-xl mx-auto p-6">
+        <div className="w-full max-w-xl mx-auto p-6 bg-white rounded-md py-4">
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 {/* City Selection */}
                 <div className="space-y-1.5">
