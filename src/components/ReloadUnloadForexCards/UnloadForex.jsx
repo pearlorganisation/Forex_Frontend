@@ -2,7 +2,14 @@ import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { ArrowRight, Trash2 } from 'lucide-react'
 import Select from 'react-select';
+import { useMutation } from '@tanstack/react-query';
 
+import instance from '../../api/api';
+
+const generateEnquiry=async(payloadData)=>{
+const response= await instance.post(`api/Forex/GenerateEnquiry`,payloadData)
+return response.data
+}
 const UnloadForex = ({ data }) => {
     const [totalAmount, setTotalAmount] = useState(0);
     const [totalInr, setTotalInr] = useState(0);
@@ -15,9 +22,20 @@ const UnloadForex = ({ data }) => {
         formState: { errors },
         control,
         setValue
-    } = useForm({
+    } = useForm({});
+    const {mutate,isPending}=useMutation({
+       mutationFn:generateEnquiry,
 
-    });
+       onSuccess:(data)=>{
+        console.log("success",data)
+        alert("Enquiry submitted successfully")
+       },
+         onError: (error) => {
+            console.error('Error:', error);
+            alert('There was an error submitting your enquiry.');
+        },
+
+    })
 
     const addProduct = () => {
         const formData = watch(); // Get current form values
@@ -39,15 +57,35 @@ const UnloadForex = ({ data }) => {
 
     const onSubmit = (data) => {
         console.log("Form Submitted:", data);
-        const payloadData={
-            ProductName:data.cardDoYouHave.value,
-            CurrencyUpload:data.currency.value,
-            ForexAmount:data.forexAmount,
-            INRAmount:data.inrAmount,
+        // const payloadData={
+        //     ProductName:data.cardDoYouHave.value,
+        //     CurrencyUpload:data.currency.value,
+        //     ForexAmount:data.forexAmount,
+        //     INRAmount:data.inrAmount,
+        // }
+        // console.log("payloadData",payloadData) 
+
+
+ const userData= JSON.parse(localStorage.getItem("userDetails"))
+
+ const payloadData={
+    ...userData,
+    enquiryData:products?.map(item=>{
+        return{
+            ProductName:item?.cardDoYouHave.value,
+            RecCurrency:item?.currency.value,
+            ForexAmount:item?.forexAmount,
+            INRAmount:item?.inrAmount,
+
         }
-        console.log("payloadData",payloadData)
+    })
+ }
+ console.log("payu",payloadData)
+mutate(payloadData)
 
     };
+
+
 
 
     const cardOptions = data?.cardlist?.map((card) => ({

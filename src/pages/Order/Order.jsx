@@ -45,7 +45,7 @@ function Order() {
                     </div>
                 </TabsContent>
                 <TabsContent value="transferNoney">
-                    <div className="w-full">
+                    <div className="w-full ">
 
                         <TransferMoney />
                     </div>

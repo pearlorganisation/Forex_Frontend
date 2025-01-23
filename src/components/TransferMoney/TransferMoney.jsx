@@ -33,7 +33,7 @@ const TransferMoney = () => {
     const [receiving, setReceiving] = useState(null);
     const [sending, setSending] = useState(null);
     const [rate, setRate] = useState(0);
-
+    const [newenquiryData, setNewEnquiryData] = useState([]);
     const { mutate, isPending } = useMutation({
         mutationFn: generateEnquiry,
         onSuccess: (data) => {
@@ -60,22 +60,33 @@ const TransferMoney = () => {
             console.log("Form Data:", data);
     
  
-            const payload = {
-                ...userData,
-                enquiryData: Object.entries(data).map(([key, value]) => ({
-                    CityName: value?.CityName?.value || "",
-                    FromCurrencyCode: value?.FromCurrencyCode?.currencyCode || "",
-                    ToCurrencyCode: value?.ToCurrencyCode?.currencyCode || "",
-                    ConversionAmount: Number(value?.ToCurrencyCode?.value) || 0,
-                    ProductName: value?.ProductName?.value || "",
-                    ForexAmount: Number(value?.ForexAmount) || 0,
-                    INRAmount: Number(value?.INRAmount) || 0,
-                })),
+            const enquiryData = [
+                {
+                    CityName: data?.city?.value || "",
+                    TransferCountry: data?.transferFrom?.value || "",
+                    TransferToCountry: data?.transferTo?.value || "",
+                    RecCurrency: Number(data?.receivingAmount?.value || 0),
+                    ProductName: data?.product?.value || "",
+                    SendCurrency: Number(data?.sendingAmount?.value || 0),
+               
+                },
+            ];
+            setNewEnquiryData((prevData)=>[...prevData,enquiryData])
+            console.log("Mapped Enquiry Data:", enquiryData);
+            
+            const finalPayload = {
+              ...userData,
+               
+    enquiryData: [...newenquiryData, ...enquiryData],
             };
-    
-            console.log("Final Payload:", payload);
-    
-            mutate(payload, {
+            
+            console.log("Final Payload:", finalPayload);
+            
+
+            
+            
+     
+            mutate(finalPayload, {
                 onSuccess: (response) => {
                     console.log("Success:", response);
                     alert("Enquiry submitted successfully!");
@@ -142,7 +153,7 @@ const TransferMoney = () => {
     const forexCards = ['Travel Card', 'Forex Card', 'Multi-Currency Card'];
 
     return (
-        <div className="w-full max-w-xl mx-auto p-6">
+        <div className="w-full max-w-xl mx-auto p-6 border text-black border-b-2 rounded-md mt-10">
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 {/* City Selection */}
                 <div className="space-y-1.5">
