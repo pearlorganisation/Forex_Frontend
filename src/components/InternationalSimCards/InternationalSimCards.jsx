@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { ChevronDown, ArrowRight } from "lucide-react";
+import { ChevronDown, ArrowRight, Trash2 } from "lucide-react";
 import instance from "../../api/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Select from "react-select";
@@ -11,12 +11,13 @@ const InternationalSimCards = () => {
     const response = await instance.get(`/api/Forex/GetForexHomePage`);
     return response?.data;
   };
-  const generateEnquiry = async () => {
-    const response = await instance.post(`/api/Forex/GenerateEnquiry`);
+  const generateEnquiry = async (payloadData) => {
+    const response = await instance.post(`/api/Forex/GenerateEnquiry`,payloadData);
     return response?.data;
   };
 
   const { mutate, pending } = useMutation({
+    mutationFn:generateEnquiry,
     onSuccess: (data) => {
       console.log("success", data);
     },
@@ -36,6 +37,7 @@ const InternationalSimCards = () => {
   const { data, isLoading, error } = useSimCards();
   const [totalAmount, setTotalAmount] = useState(0);
   const[products,setProducts]=useState([])
+  console.log("products",products)
   const {
     register,
     handleSubmit,
@@ -57,25 +59,29 @@ const InternationalSimCards = () => {
 
     const payloadData = {
       ...userData,
-      TransferToCountry: data.countryToTravel.value,
-      TravelEnddate: data.endDate,
-      TravelStartdate: data.startDate,
-    };
-    console.log("payload", payloadData);
-  };
+      enquiryData: products.map(item => {
+          return {                             
+            TransferToCountry: item?.TransferToCountry.value,
+          TravelStartdate: item?.startDate,
+          TravelEnddate: item?.endDate,
+          };
 
+      })}
+      console.log("mutate",payloadData)
+      mutate(payloadData)
+    }
   const addProduct=()=>{
  
     const formData=watch()
 
-    // if (!formData.ageOfTravellers || !formData.endDate || !formData.startDate ) {
-    //     alert('Please fill all required fields!');
-    //     return;
-    // }
+    if (!formData.countryToTravel || !formData.endDate || !formData.startDate ) {
+        alert('Please fill all required fields!');
+        return;
+    }
     const newProduct = {
-        age: formData.ageOfTravellers,
+      TransferToCountry: formData.countryToTravel.value,
             startDate: formData.startDate,
-        returnDate: formData.returnDate,
+        returnDate: formData.endDate,
     };
 
     setProducts((prevProducts) => [...prevProducts, newProduct]);
@@ -161,6 +167,41 @@ const InternationalSimCards = () => {
           </button>
         </div>
 
+
+        {products.length > 0 && (
+                    <div className="mt-8">
+                        <h2 className="text-2xl font-semibold mb-4">Product List</h2>
+                        <table className="min-w-full border border-collapse">
+                            <thead>
+                                <tr className="bg-gray-100 border-b">
+                                
+                                    <th className="p-2 text-left">Destination</th>
+                                    <th className="p-2 text-left">Start Date</th>
+                                    <th className="p-2 text-left">End Date</th>
+                                    <th className="p-2 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {products.map((product, index) => (
+                                    <tr key={index} className="border-b">
+                                     
+                                        <td className="p-2">{product.TransferToCountry}</td>
+                                        <td className="p-2">{product.startDate}</td>
+                                        <td className="p-2">{product.returnDate}</td>
+                                        <td className="p-2 text-center">
+                                            <button
+                                                className="text-red-500 hover:text-red-700"
+                                                onClick={() => setProducts((prev) => prev.filter((_, i) => i !== index))}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
         {isLoading ? (
           <button
             type="submit"
