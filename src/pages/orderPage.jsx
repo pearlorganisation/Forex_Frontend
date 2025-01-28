@@ -1190,7 +1190,7 @@ const MultiStepForm = () => {
 
 
 
-{currentStep===5 &&(
+{currentStep===5 && (
   <> <section>
   <div className="p-8 bg-gray-100">
      {/* Step Header */}
