@@ -5,6 +5,7 @@ import { ArrowRight, Edit, Trash2 } from 'lucide-react';
 import DynamicCity from '../DynamicCity/DynamicCity';
 import { useMutation } from '@tanstack/react-query';
 import instance from '../../api/api';
+import { useNavigate } from 'react-router-dom';
 
 const generateEnquiry = async (payload) => {
     const response = await instance.post(`/api/Forex/GenerateEnquiry`, payload);
@@ -15,6 +16,7 @@ const generateEnquiry = async (payload) => {
 
 
 const Buying = ({ data }) => {
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]); // State to store added products
     const { register, handleSubmit, watch, setValue, control, reset, formState: { errors } } = useForm();
     const { mutate, isPending } = useMutation({
@@ -22,6 +24,7 @@ const Buying = ({ data }) => {
         onSuccess: (data) => {
             console.log(data, 'Success');
             alert('Enquiry submitted successfully!');
+            navigate("/orderConfirmation", { state: data });
         },
         onError: (error) => {
             console.error('Error:', error);
@@ -31,10 +34,12 @@ const Buying = ({ data }) => {
 
     const onSubmit = () => {
         const data = JSON.parse(localStorage.getItem("userDetails"));
+        const reqCodeNaame = { RequestCode: 1, RequestName: "Transfer Money" };
         const payload = {
-            ...data, enquiryData: products?.map(item => {
+            ...data, ...reqCodeNaame, enquiryData: products?.map(item => {
                 return {
                     ...item,
+                    TransactionType:"buy",
                     CityName: item?.CityName?.value,
                     FromCurrencyCode: item?.FromCurrencyCode?.currencyCode,
                     ToCurrencyCode: item?.ToCurrencyCode?.currencyCode,
@@ -42,6 +47,7 @@ const Buying = ({ data }) => {
                     ProductName: item?.ProductName?.value,
                     ForexAmount: Number(item?.ForexAmount),
                     INRAmount: Number(item?.INRAmount),
+                    
 
 
                 }
