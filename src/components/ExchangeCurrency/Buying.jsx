@@ -24,7 +24,8 @@ const Buying = ({ data }) => {
         onSuccess: (data) => {
             console.log(data, 'Success');
             alert('Enquiry submitted successfully!');
-            navigate("/orderConfirmation", { state: data });
+            navigate('/orderConfirmation',{state:data})
+     
         },
         onError: (error) => {
             console.error('Error:', error);
@@ -34,9 +35,9 @@ const Buying = ({ data }) => {
 
     const onSubmit = () => {
         const data = JSON.parse(localStorage.getItem("userDetails"));
-        const reqCodeNaame = { RequestCode: 1, RequestName: "Transfer Money" };
+        const reqCodeName = { RequestCode: 1, RequestName: "Exchange Currency" };
         const payload = {
-            ...data, ...reqCodeNaame, enquiryData: products?.map(item => {
+            ...data, ...reqCodeName, enquiryData: products?.map(item => {
                 return {
                     ...item,
                     TransactionType:"buy",
@@ -110,6 +111,8 @@ const Buying = ({ data }) => {
         label: prod?.prodname,
     }));
 
+    console.log("curr",currencyWant)
+    
     return (
         <>
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -193,7 +196,7 @@ const Buying = ({ data }) => {
 
                             {...register("ForexAmount", {
                                 required: "Forex amount is required", onChange: (e) => {
-                                    setValue("INRAmount", Number(currencyWantAmt * e.target?.value).toFixed(2))
+                                    setValue("INRAmount", Number(currencyWantAmt*e.target?.value).toFixed(2))
                                 }
                             })}
                             className="w-full border rounded-lg py-2 px-4"

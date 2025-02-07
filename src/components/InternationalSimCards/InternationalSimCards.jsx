@@ -5,8 +5,10 @@ import instance from "../../api/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Select from "react-select";
 import DynamicCountry from "../DynamicCountry/DynamicCountry";
+import { useNavigate } from "react-router-dom";
 
 const InternationalSimCards = () => {
+const navigate=useNavigate()
   const fetchSimCards = async () => {
     const response = await instance.get(`/api/Forex/GetForexHomePage`);
     return response?.data;
@@ -20,6 +22,8 @@ const InternationalSimCards = () => {
     mutationFn:generateEnquiry,
     onSuccess: (data) => {
       console.log("success", data);
+      navigate("/orderConfirmation",{state:data})
+
     },
     onError: (error) => {
       console.error("Error", error);
@@ -56,14 +60,14 @@ const InternationalSimCards = () => {
   const onSubmit = (data) => {
     console.log("Form Submitted:", data);
     const userData = JSON.parse(localStorage.getItem("userDetails"));
-
+const requestCode={RequestCode:4,RequestName:"International Sim Cards"}
     const payloadData = {
-      ...userData,
+      ...userData,...requestCode,
       enquiryData: products.map(item => {
           return {                             
-            TransferToCountry: item?.TransferToCountry.value,
+            TransferToCountry: item?.TransferToCountry,
           TravelStartdate: item?.startDate,
-          TravelEnddate: item?.endDate,
+          TravelEnddate: item?.returnDate,
           };
 
       })}

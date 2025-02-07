@@ -4,12 +4,14 @@ import { ChevronDown, ArrowRight, Trash2 } from 'lucide-react';
 import instance from '../../api/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import DynamicCountry from '../DynamicCountry/DynamicCountry';
+import { useNavigate } from 'react-router-dom';
 
 const TravelInsurance = () => {
     const fetchTravelInsurance = async () => {
         const response = await instance.get(`/api/Forex/GetForexHomePage`);
         return response?.data;
     };
+    const navigate =useNavigate()
 
     const generateEnquiry= async(payloadData)=>{
         const response= await instance.post(`/api/Forex/GenerateEnquiry`,payloadData);
@@ -20,6 +22,7 @@ const TravelInsurance = () => {
         onSuccess: (data) => {
             console.log(data, 'Success');
             alert('Enquiry submitted successfully!');
+            navigate('/orderConfirmation',{state:data})
         },
         onError: (error) => {
             console.error('Error:', error);
@@ -77,9 +80,9 @@ const TravelInsurance = () => {
 
       
     const userData = JSON.parse(localStorage.getItem('userDetails'));
-
+const requestCode={RequestCode:5,RequestName:"Travel Insurance"}
     const payloadData = {
-        ...userData,
+        ...userData,...requestCode,
         enquiryData: products.map(item => {
             return {                             
             CityName: item?.destination,

@@ -5,6 +5,7 @@ import Select from 'react-select';
 import { useMutation } from '@tanstack/react-query';
 
 import instance from '../../api/api';
+import { useNavigate } from 'react-router-dom';
 
 const generateEnquiry=async(payloadData)=>{
 const response= await instance.post(`api/Forex/GenerateEnquiry`,payloadData)
@@ -15,6 +16,7 @@ const UnloadForex = ({ data }) => {
     const [totalInr, setTotalInr] = useState(0);
     const [rate, setRate] = useState(0);
     const [products, setProducts] = useState([]); // State to store added products
+    const navigation=useNavigate()
     const {
         register,
         handleSubmit,
@@ -29,6 +31,7 @@ const UnloadForex = ({ data }) => {
        onSuccess:(data)=>{
         console.log("success",data)
         alert("Enquiry submitted successfully")
+        navigation("/orderConfirmation",{state:data})
        },
          onError: (error) => {
             console.error('Error:', error);
@@ -57,21 +60,15 @@ const UnloadForex = ({ data }) => {
 
     const onSubmit = (data) => {
         console.log("Form Submitted:", data);
-        // const payloadData={
-        //     ProductName:data.cardDoYouHave.value,
-        //     CurrencyUpload:data.currency.value,
-        //     ForexAmount:data.forexAmount,
-        //     INRAmount:data.inrAmount,
-        // }
-        // console.log("payloadData",payloadData) 
 
 
  const userData= JSON.parse(localStorage.getItem("userDetails"))
-
+const reqCodeName={RequestCode:3,RequestName:"Reload/Unload Forex Cards"}
  const payloadData={
-    ...userData,
+    ...userData,...reqCodeName,
     enquiryData:products?.map(item=>{
-        return{
+                return{
+                    TransactionType:"unload",
             ProductName:item?.cardDoYouHave.value,
             RecCurrency:item?.currency.value,
             ForexAmount:item?.forexAmount,

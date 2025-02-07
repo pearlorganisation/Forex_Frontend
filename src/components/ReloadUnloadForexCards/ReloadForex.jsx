@@ -4,6 +4,7 @@ import { ChevronDown, ArrowRight, Trash2 } from 'lucide-react'
 import Select from 'react-select';
 import { useMutation } from '@tanstack/react-query';
 import instance from '../../api/api';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -25,11 +26,13 @@ const ReloadForex = ({ data }) => {
         control,
         setValue
     } = useForm({ });
+    const navigate=useNavigate()
     const { mutate, isPending } = useMutation({
         mutationFn: generateEnquiry,
         onSuccess: (data) => {
             console.log(data, 'Success');
             alert('Enquiry submitted successfully!');
+            navigate("/orderConfirmation", { state: data });
         },
         onError: (error) => {
             console.error('Error:', error);
@@ -58,12 +61,12 @@ const ReloadForex = ({ data }) => {
     const onSubmit = () => {
         const userData = JSON.parse(localStorage.getItem("userDetails"));
         
-      
+        const reqCodeName = { RequestCode: 3, RequestName: "Reload/Unload Forex Cards" };
         const payloadData = {
-            ...userData,
+            ...userData,...reqCodeName,
             enquiryData: products.map(item => {
                 return {
-                  
+                    TransactionType:"reload",
                     ProductName: item?.cardDoYouHave?.value,
                     RecCurrency: Number(item?.currency?.value),
                     ForexAmount: Number(item?.forexAmount),

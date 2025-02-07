@@ -5,6 +5,7 @@ import { ArrowRight, Edit, Trash2 } from 'lucide-react';
 import DynamicCity from '../DynamicCity/DynamicCity';
 import { useMutation } from '@tanstack/react-query';
 import instance from '../../api/api';
+import { useNavigate } from 'react-router-dom';
 
 const generateEnquiry = async (payload) => {
     const response = await instance.post(`/api/Forex/GenerateEnquiry`, payload);
@@ -17,11 +18,14 @@ const generateEnquiry = async (payload) => {
 const Selling = ({ data }) => {
     const [products, setProducts] = useState([]); // State to store added products
     const { register, handleSubmit, watch, setValue, control, reset, formState: { errors } } = useForm();
+    const navigate= useNavigate()
     const { mutate, isPending } = useMutation({
         mutationFn: generateEnquiry,
         onSuccess: (data) => {
             console.log(data, 'Success');
             alert('Enquiry submitted successfully!');
+            navigate("/orderConfirmation",{state:data})
+
         },
         onError: (error) => {
             console.error('Error:', error);
@@ -32,10 +36,12 @@ const Selling = ({ data }) => {
     const onSubmit = () => {
         const data = JSON.parse(localStorage.getItem("userDetails"));
         console.log("prod",products)
+        const reqCodeName = { RequestCode: 1, RequestName: "Exchange Currency" };
         const payload = {
-            ...data, enquiryData: products?.map(item => {
+            ...data,...reqCodeName, enquiryData: products?.map(item => {
                 return {
                     ...item,
+                    TransactionType:"sell",
                     CityName: item?.CityName?.value,
                     FromCurrencyCode: item?.FromCurrencyCode?.currencyCode,
                     ToCurrencyCode: item?.ToCurrencyCode?.currencyCode,
@@ -66,7 +72,7 @@ const Selling = ({ data }) => {
         return (Number(sum) + Number(product.INRAmount || 0)).toFixed(2)
     }, 0);
 
-    const currencyHave = data?.CurrencyHave?.map((cur) => ({
+    const currencyWant = data?.CurrencyHave?.map((cur) => ({
         value: cur.Price,
         label: (
             <div className="flex items-center space-x-2">
@@ -82,7 +88,7 @@ const Selling = ({ data }) => {
         currencyCode: cur.Currencycode,
     }));
 
-    const currencyWant = data?.Currencywant?.map((cur) => ({
+    const  currencyHave  = data?.Currencywant?.map((cur) => ({
         value: cur.Price,
         label: (
             <div className="flex items-center space-x-2">
@@ -97,6 +103,8 @@ const Selling = ({ data }) => {
         currencyName: cur.Currencyname,
         currencyCode: cur.Currencycode,
     }));
+
+
 
     const productList = data?.prodlist?.map((prod) => ({
         value: prod.prodname,
@@ -105,7 +113,7 @@ const Selling = ({ data }) => {
 
     return (
         <>
-            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+              <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
                 {/* City Selection */}
                 <DynamicCity
                     lbl={data?.citylbl}
@@ -186,7 +194,7 @@ const Selling = ({ data }) => {
 
                             {...register("ForexAmount", {
                                 required: "Forex amount is required", onChange: (e) => {
-                                    setValue("INRAmount", Number(currencyWantAmt * e.target?.value).toFixed(2))
+                                    setValue("INRAmount", Number(currencyWantAmt*e.target?.value).toFixed(2))
                                 }
                             })}
                             className="w-full border rounded-lg py-2 px-4"
@@ -237,7 +245,6 @@ const Selling = ({ data }) => {
                     </button>
                 }
             </form>
-
             {/* Product List Table */}
             {products.length > 0 && (
                 <div className="mt-8">
